@@ -13,7 +13,7 @@
       "VERCEL": "1",
       "NEXT_PUBLIC_VERCEL_URL": "$VERCEL_URL"
     },
-    "framework": "next",
+    "framework": "nextjs",
     "version": 2
   }
   
