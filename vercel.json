@@ -1,0 +1,18 @@
+{
+    "builds": [
+      {
+        "src": "package.json",
+        "use": "@vercel/node"
+      }
+    ],
+    "routes": [
+      { "handle": "filesystem" },
+      { "src": "/api/.*", "dest": "api/index.js" }
+    ],
+    "env": {
+      "VERCEL": "1",
+      "NEXT_PUBLIC_VERCEL_URL": "$VERCEL_URL"
+    },
+    "framework": "next@12"
+  }
+  
