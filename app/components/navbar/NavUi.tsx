@@ -1,18 +1,17 @@
 "use client";
 
-import Link from "next/link";
-import React from "react";
+import useAuth from "@/app/hooks/useAuth";
+import { Bars3Icon, ShoppingBagIcon, UserCircleIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import {
-  Navbar as MaterialNav,
   IconButton,
+  Navbar as MaterialNav,
   Spinner,
 } from "@material-tailwind/react";
-import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
-import ProfileMenu from "../ProfileMenu";
-import { MobileNav } from "../MobileNav";
+import Link from "next/link";
+import React from "react";
 import CartIcon from "../CartIcon";
-import { UserCircleIcon, ShoppingBagIcon } from "@heroicons/react/24/outline";
-import useAuth from "@/app/hooks/useAuth"; 
+import { MobileNav } from "../MobileNav";
+import ProfileMenu from "../ProfileMenu";
 
 interface Props {
   cartItemsCount: number;
@@ -61,7 +60,7 @@ export default function NavUI({ cartItemsCount }: Props) {
             ) : (
               <>
                 <Link className="px-4 py-1" href="/auth/signin">
-                  Sign in
+                  Sign in 2
                 </Link>
                 <Link
                   className="bg-blue-500 text-white px-4 py-1 rounded"
