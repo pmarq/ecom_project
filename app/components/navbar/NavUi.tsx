@@ -60,7 +60,7 @@ export default function NavUI({ cartItemsCount }: Props) {
             ) : (
               <>
                 <Link className="px-4 py-1" href="/auth/signin">
-                  Sign in 2
+                  Sign in
                 </Link>
                 <Link
                   className="bg-blue-500 text-white px-4 py-1 rounded"
