@@ -39,10 +39,7 @@ const authOptions: NextAuthOptions = {
           credentials.password,
           user.password
         );
-
-        if (!isCorrectPassword) {
-          throw new Error("Invalid credentials");
-        }
+        
         return user;
       },
     }),
