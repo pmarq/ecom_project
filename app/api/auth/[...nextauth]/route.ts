@@ -6,7 +6,8 @@ import GoogleProvider from "next-auth/providers/google";
 
 import prisma from "@/prisma";
 
-const authOptions: NextAuthOptions = {
+
+export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
     GoogleProvider({
@@ -27,9 +28,9 @@ const authOptions: NextAuthOptions = {
 
         const user = await prisma.user.findUnique({
           where: {
-            email: credentials.email,
+            email: credentials?.email,
           },
-        });
+        });       
 
         if (!user || !user?.password) {
           throw new Error("Invalid credentials");
@@ -39,13 +40,34 @@ const authOptions: NextAuthOptions = {
           credentials.password,
           user.password
         );
+
+        if(!isCorrectPassword) {
+          return null;
+        }
         
         return user;
       },
     }),
   ],
+  callbacks:{
+    async jwt(params) {
+      console.log("jwt ====>" , params)
+      if (params.user){
+        params.token.user = params.user
+      }
+      return params.token
+    },
+   async session(params) {
+    console.log("session ====>" , params)
+    const user = params.token.user
+    if(user){
+      params.session.user = {...params.session.user, ...user}
+    }
+    return params.session
+    },
+  },
   pages: {
-    signIn: "/",
+    signIn: "/", //??
   },
   debug: process.env.NODE_ENV === "development",
   session: {

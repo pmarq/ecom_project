@@ -22,6 +22,7 @@ datasource db {
   favoriteIds     String[] @db.ObjectId
   
   activateTokens ActivateToken[]
+  activateResetTokens ActivateResetToken[]
 
   role UserRole @default(USER)
 
@@ -53,6 +54,18 @@ model Account {
 }
 
 model ActivateToken {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  token       String    @unique
+  createdAt   DateTime  @default(now())
+  activatedAt DateTime?
+  expireAt    DateTime?
+
+  user   User @relation(fields: [userId], references: [id])
+  userId String @db.ObjectId
+
+}
+
+model ActivateResetToken {
   id          String    @id @default(auto()) @map("_id") @db.ObjectId
   token       String    @unique
   createdAt   DateTime  @default(now())
