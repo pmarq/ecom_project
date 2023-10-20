@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import prisma from '@/prisma';
 import bcrypt  from "bcrypt";
 import { startDb } from '@/app/lib/db';
+import nodemailer from "nodemailer"
 
 export const POST = async (req: Request) => {
     try {
@@ -25,13 +26,12 @@ export const POST = async (req: Request) => {
         where: {
             id: userId
          }
-       })
-       console.log(user)
+       })       
        if(!user) return NextResponse.json({error:"Invalid Request"}, {status: 404})
        
        const hashedPassword = await bcrypt.hash(password, 10)
        
-       const updateUserPassword = await prisma.user.update({
+       await prisma.user.update({
         where: {
             id: userId
         },
@@ -39,15 +39,36 @@ export const POST = async (req: Request) => {
             password: hashedPassword
         }
        })
-       console.log(updateUserPassword)
-       return NextResponse.json({message: "Your password has changed!"}, {status: 200})           
-       
-       ///??????
 
+       // como apagar o token do banco de dados??
+
+    // send email password was updated.     
+
+       const transport = nodemailer.createTransport({
+        host: "sandbox.smtp.mailtrap.io",
+        port: 2525,
+        auth: {
+          user: "29dc3a30787fa8",
+          pass: "554f12abcbc072"
+         }
+         });            
+     
+         await transport.sendMail({
+          from: "verification@nextecon.com",
+          to: user.email as string,
+          subject: "Password Update",
+         html: `<h1>Your password now is changed!</h1>`
+           }); 
+           
+           
+           return NextResponse.json({message: "Your password now is changed!"}, {status: 200});           
+       
+       ///??????    
+    
     } catch (error) {
         return NextResponse.json(
             {
-                error: "could not update password, something went wrong!"
+                error: "Could not update password, something went wrong!"
             },
             { status: 500 }
         );
