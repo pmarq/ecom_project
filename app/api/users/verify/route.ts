@@ -1,9 +1,14 @@
 import prisma from "@/prisma";
 import { NextResponse } from "next/server";
+import { createActivateToken } from "@/app/services/emailVerificationToken";
+import nodemailer from "nodemailer"; 
+import { startDb } from "@/app/lib/db";
+import { getServerSession } from "next-auth";
+import { authOptions } from "../../auth/[...nextauth]/route";
 
 
 
-export const  POST = async (req: Request) => {
+export const POST = async (req: Request) => {
     try{ 
         
     const { token, userId } = await req.json()     
@@ -31,7 +36,7 @@ export const  POST = async (req: Request) => {
     await prisma.user.update({
       where: {id: user.id},
       data: {emailVerified: true}
-    })
+    })    
 
     await prisma.activateToken.delete({
       where: {id: activeToken.id}
@@ -49,3 +54,62 @@ export const  POST = async (req: Request) => {
      }  
 
     };
+
+
+    export const  GET = async (req: Request) => {
+      try{ 
+        const userId = req.url.split("?userId=")[1]
+        if(!userId) return NextResponse.json({error: "Invalid request, user id missing!"}, {status:401});
+
+        await startDb()
+        
+        const user = await prisma.user.findUnique({
+          where: {
+           id: userId
+          }
+        })
+
+        if(!user) return NextResponse.json({error: "Invalid request, user not found!"}, {status: 401})
+
+        if(user.emailVerified === true) return NextResponse.json({error: "Invalid request, user already verified!"}, {status: 401})
+
+        const token = createActivateToken()  
+        
+        await prisma.activateToken.create({
+        data: {
+          token:token,
+          userId: user.id
+        }
+    
+       })
+    
+        const transport = nodemailer.createTransport({
+            host: "sandbox.smtp.mailtrap.io",
+            port: 2525,
+            auth: {
+              user: "29dc3a30787fa8",
+              pass: "554f12abcbc072"
+            }
+          }); 
+          
+          const verificationLink = `http://localhost:3000/verifyPage?token=${token}&userId=${user.id}`;
+          await transport.sendMail({
+            from: "verification@nextecon.com",
+            to: user.email as string,
+            subject: "Verify Your Email",
+            html: `<h1>Please verify your e-mail by clicking on <a href="${verificationLink}">This link</a></h1>`
+          });
+      
+  
+      return NextResponse.json ({message: "Please check your e-mail"},{status: 200});
+    
+    } catch (error) {
+  
+          return NextResponse.json(
+              {
+              error: "Could not verify email, Something went wrong!",
+               }, 
+          { status: 500 })
+       }  
+  
+      };

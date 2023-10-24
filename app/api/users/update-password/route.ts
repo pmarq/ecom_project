@@ -42,7 +42,7 @@ export const POST = async (req: Request) => {
 
        // como apagar o token do banco de dados??
 
-    // send email password was updated.     
+      // send email password was updated.     
 
        const transport = nodemailer.createTransport({
         host: "sandbox.smtp.mailtrap.io",

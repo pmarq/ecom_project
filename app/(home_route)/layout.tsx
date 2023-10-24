@@ -8,13 +8,10 @@ interface Props {
     children: ReactNode
 }
 
-export default async function GuestLayout({children}: Props) {
-    const session = await getServerSession(authOptions)
-    console.log("Auth Session",session)
-    if (session) return redirect("/")
+export default async function HomeLayout({children}: Props) {    
    
   return (
-    <div>
+    <div className='max-w-screen-xl mx-auto xl:p-0 p-4'>
       <Navbar />
       {children}
     </div>

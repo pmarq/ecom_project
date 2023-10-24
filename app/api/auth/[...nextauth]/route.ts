@@ -5,6 +5,14 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 
 import prisma from "@/prisma";
+import { SessionUserProfile } from "@/app/types";
+
+
+declare module "next-auth" {
+  interface Session {
+    user: SessionUserProfile
+  }
+}
 
 
 export const authOptions: NextAuthOptions = {
@@ -53,16 +61,27 @@ export const authOptions: NextAuthOptions = {
     async jwt(params) {
       console.log("jwt ====>" , params)
       if (params.user){
-        params.token.user = params.user
+        params.token = {...params.token, ...params.user}
+        
       }
       return params.token
     },
    async session(params) {
     console.log("session ====>" , params)
-    const user = params.token.user
+    const user = params.token as typeof params.token & SessionUserProfile
+    console.log(user.emailVerified)
+
+    const test = user.emailVerified
+
     if(user){
-      params.session.user = {...params.session.user, ...user}
-    }
+      params.session.user = {...params.session.user, 
+        id: user.id,
+        name: user.name,
+        email: user.email, 
+        emailVerified: test, 
+        role: user.role
+      }    
+    } 
     return params.session
     },
   },

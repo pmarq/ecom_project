@@ -7,7 +7,7 @@ import nodemailer from "nodemailer";
 import { createActivateToken } from "@/app/services/emailVerificationToken";
 
 
- 
+
 
 export const POST = async (req: Request) => {
     try{

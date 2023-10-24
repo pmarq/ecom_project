@@ -20,8 +20,7 @@ export default function RootLayout({
   return (
     <AuthSession>
     <html lang="en">
-      <body className={inter.className}>
-        <Navbar />
+      <body className={inter.className}>       
         {children}
         <Notification />
         </body>

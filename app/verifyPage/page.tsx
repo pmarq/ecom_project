@@ -26,13 +26,12 @@ export default function VerifyPage(props: Props) {
            if(res.ok) {
            //sucess
            toast.success(message);
-           router.replace('/')
            }
 
            if(!res.ok && error) {
             toast.error(error);
            }
-
+           router.replace('/')
         })
     }, [])
 
