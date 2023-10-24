@@ -10,25 +10,25 @@ import { createActivateToken } from "@/app/services/emailVerificationToken";
 
 
 export const POST = async (req: Request) => {
+
     try{
     const body = await req.json() as NewUserRequest;  
     await startDb()
+    
     const hashedPassword = await bcrypt.hash(body.password, 10)
 
     const token = createActivateToken()    
 
     const newUser = await prisma.user.create({data: {...body, password: hashedPassword } 
-    });
-    
-    
-   await prisma.activateToken.create({
+    });   
+
+  await prisma.activateToken.create({
     data: {
       token:token,
       userId: newUser.id
     }
-
    })
-
+   
     const transport = nodemailer.createTransport({
         host: "sandbox.smtp.mailtrap.io",
         port: 2525,

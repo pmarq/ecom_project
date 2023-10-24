@@ -23,7 +23,7 @@ export const authOptions: NextAuthOptions = {
       clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
     }),
 
-    CredentialsProvider({
+   CredentialsProvider({
       name: "credentials",
       credentials: {
         email: { label: "email", type: "text" },
@@ -70,15 +70,13 @@ export const authOptions: NextAuthOptions = {
     console.log("session ====>" , params)
     const user = params.token as typeof params.token & SessionUserProfile
     console.log(user.emailVerified)
-
-    const test = user.emailVerified
-
+ 
     if(user){
-      params.session.user = {...params.session.user, 
+       params.session.user = {...params.session.user, 
         id: user.id,
         name: user.name,
         email: user.email, 
-        emailVerified: test, 
+        emailVerified: user.emailVerified, 
         role: user.role
       }    
     } 

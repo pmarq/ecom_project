@@ -3,8 +3,7 @@ import { NextResponse } from "next/server";
 import { createActivateToken } from "@/app/services/emailVerificationToken";
 import nodemailer from "nodemailer"; 
 import { startDb } from "@/app/lib/db";
-import { getServerSession } from "next-auth";
-import { authOptions } from "../../auth/[...nextauth]/route";
+
 
 
 
@@ -20,7 +19,7 @@ export const POST = async (req: Request) => {
     if (!user) {
       return NextResponse.json ({message: "User not found!"},{status: 400});
     } ; 
-    
+        
     const activeToken = await prisma.activateToken.findFirst({
         where: {userId : user.id}
      });   
@@ -68,21 +67,31 @@ export const POST = async (req: Request) => {
            id: userId
           }
         })
+        
 
         if(!user) return NextResponse.json({error: "Invalid request, user not found!"}, {status: 401})
 
         if(user.emailVerified === true) return NextResponse.json({error: "Invalid request, user already verified!"}, {status: 401})
-
-        const token = createActivateToken()  
+   
+       
+      
+      const token = createActivateToken()      
+        
+      if(prisma.activateToken){
+        await prisma.activateToken.deleteMany({
+          where: {
+            userId:userId
+          }
+        })
+      }
         
         await prisma.activateToken.create({
         data: {
           token:token,
           userId: user.id
-        }
-    
-       })
-    
+        }  
+
+       })    
         const transport = nodemailer.createTransport({
             host: "sandbox.smtp.mailtrap.io",
             port: 2525,
@@ -90,8 +99,7 @@ export const POST = async (req: Request) => {
               user: "29dc3a30787fa8",
               pass: "554f12abcbc072"
             }
-          }); 
-          
+          });           
           const verificationLink = `http://localhost:3000/verifyPage?token=${token}&userId=${user.id}`;
           await transport.sendMail({
             from: "verification@nextecon.com",
