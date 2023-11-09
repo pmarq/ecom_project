@@ -5,6 +5,7 @@ import useAuth from '../hooks/useAuth';
 import { toast } from "react-toastify";
 
 
+
 export default function EmailVerificationBanner() {
     const [submitting , setSubmitting] = useState(false)
     const {profile} = useAuth()

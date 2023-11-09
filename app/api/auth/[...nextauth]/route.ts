@@ -7,13 +7,11 @@ import GoogleProvider from "next-auth/providers/google";
 import prisma from "@/prisma";
 import { SessionUserProfile } from "@/app/types";
 
-
 declare module "next-auth" {
   interface Session {
     user: SessionUserProfile
   }
 }
-
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
@@ -51,9 +49,8 @@ export const authOptions: NextAuthOptions = {
 
         if(!isCorrectPassword) {
           return null;
-        }
-        
-        return user;
+        }  
+        return user;        
       },
     }),
   ],
@@ -61,12 +58,14 @@ export const authOptions: NextAuthOptions = {
     async jwt(params) {
       console.log("jwt ====>" , params)
       if (params.user){
-        params.token = {...params.token, ...params.user}
-        
-      }
+        params.token = {...params.token, ...params.user}        
+      } 
       return params.token
     },
-   async session(params) {
+
+   
+
+   async session(params) {   
     console.log("session ====>" , params)
     const user = params.token as typeof params.token & SessionUserProfile
     console.log(user.emailVerified)
@@ -95,4 +94,3 @@ export const authOptions: NextAuthOptions = {
 
 const handler = NextAuth(authOptions);
 
-export { handler as GET, handler as POST };

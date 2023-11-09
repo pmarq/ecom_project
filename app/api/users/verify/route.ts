@@ -5,8 +5,6 @@ import nodemailer from "nodemailer";
 import { startDb } from "@/app/lib/db";
 
 
-
-
 export const POST = async (req: Request) => {
     try{ 
         
@@ -39,9 +37,12 @@ export const POST = async (req: Request) => {
 
     await prisma.activateToken.delete({
       where: {id: activeToken.id}
-    })
+    })   
+
 
     return NextResponse.json ({message: "User verified"},{status: 200});
+
+
   
   } catch (error) {
 
