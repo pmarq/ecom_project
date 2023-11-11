@@ -3,18 +3,17 @@ import { NextResponse } from "next/server";
 import { createActivateToken } from "@/app/services/emailVerificationToken";
 import nodemailer from "nodemailer"; 
 import { startDb } from "@/app/lib/db";
-import { getServerSession } from "next-auth";
-import { authOptions } from "../../auth/[...nextauth]/route";
 
 
 
 export const POST = async (req: Request) => {
-    try{ 
-        
-    const { token, userId } = await req.json()     
 
+    try{      
+
+    const { token, userId } = await req.json()     
     const user = await prisma.user.findFirst({
       where: {id: userId}
+
     });
 
     if (!user) {
@@ -61,13 +60,22 @@ export const POST = async (req: Request) => {
         const userId = req.url.split("?userId=")[1]
         if(!userId) return NextResponse.json({error: "Invalid request, user id missing!"}, {status:401});
 
-        await startDb()
+        await startDb()       
+       
         
         const user = await prisma.user.findUnique({
           where: {
            id: userId
           }
         })
+
+        if(prisma.activateToken){
+          await prisma.activateToken.deleteMany({
+            where:{
+              userId:userId
+            }
+          })
+        }
 
         if(!user) return NextResponse.json({error: "Invalid request, user not found!"}, {status: 401})
 
