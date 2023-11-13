@@ -13,6 +13,7 @@ declare module "next-auth" {
   }
 }
 
+
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
@@ -21,7 +22,7 @@ export const authOptions: NextAuthOptions = {
       clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
     }),
 
-   CredentialsProvider({
+    CredentialsProvider({
       name: "credentials",
       credentials: {
         email: { label: "email", type: "text" },
@@ -49,8 +50,9 @@ export const authOptions: NextAuthOptions = {
 
         if(!isCorrectPassword) {
           return null;
-        }  
-        return user;        
+        }
+        
+        return user;
       },
     }),
   ],
@@ -58,20 +60,22 @@ export const authOptions: NextAuthOptions = {
     async jwt(params) {
       console.log("jwt ====>" , params)
       if (params.user){
-        params.token = {...params.token, ...params.user}        
-      } 
+        params.token = {...params.token, ...params.user}
+        
+      }
       return params.token
     },
-
-   
-
-   async session(params) {   
+   async session(params) {
     console.log("session ====>" , params)
-    const user = params.token as typeof params.token & SessionUserProfile
+
+    const user = params.token as typeof params.token & SessionUserProfile    
+
     console.log(user.emailVerified)
- 
+    
+    
+
     if(user){
-       params.session.user = {...params.session.user, 
+      params.session.user = {...params.session.user, 
         id: user.id,
         name: user.name,
         email: user.email, 
@@ -93,4 +97,7 @@ export const authOptions: NextAuthOptions = {
 };
 
 const handler = NextAuth(authOptions);
+
+export { handler as GET, handler as POST };
+
 
