@@ -49,10 +49,8 @@ export const POST = async (req: Request) => {
     user: "826a5d3492a12f",
     pass: "fcdb64df814226"
   }
-});    
-      
-      
-      
+});         
+            
 
 
     const resetPassLink = `${process.env.PASSWORD_RESET_URL}?token=${token}&userId=${user.id}`
