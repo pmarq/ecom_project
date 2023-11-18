@@ -44,14 +44,14 @@ export const POST = async (req: Request) => {
 
       // send email password was updated.     
 
-       const transport = nodemailer.createTransport({
+      const transport = nodemailer.createTransport({
         host: "sandbox.smtp.mailtrap.io",
         port: 2525,
         auth: {
-          user: "29dc3a30787fa8",
-          pass: "554f12abcbc072"
-         }
-         });            
+          user: "826a5d3492a12f",
+          pass: "fcdb64df814226"
+        }
+      });            
      
          await transport.sendMail({
           from: "verification@nextecon.com",

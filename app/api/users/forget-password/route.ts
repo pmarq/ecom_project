@@ -43,14 +43,18 @@ export const POST = async (req: Request) => {
      // send the link to the given email.     
 
      const transport = nodemailer.createTransport({
-        host: "sandbox.smtp.mailtrap.io",
-        port: 2525,
-        auth: {
-          user: "29dc3a30787fa8",
-          pass: "554f12abcbc072"
-        }
-      });      
+  host: "sandbox.smtp.mailtrap.io",
+  port: 2525,
+  auth: {
+    user: "826a5d3492a12f",
+    pass: "fcdb64df814226"
+  }
+});    
       
+      
+      
+
+
     const resetPassLink = `${process.env.PASSWORD_RESET_URL}?token=${token}&userId=${user.id}`
     await transport.sendMail({
       from: "verification@nextecon.com",

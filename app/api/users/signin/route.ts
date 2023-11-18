@@ -16,7 +16,10 @@ export const POST = async (req: Request) => {
         }
     })
 
+    
     if (!user || !user?.password) return NextResponse.json({error: "Email/password missmatch!"})
+
+    
 
     const isCorrectPassword = await bcrypt.compare(
         password,
@@ -24,10 +27,11 @@ export const POST = async (req: Request) => {
       );
 
       if(!isCorrectPassword) {
-        return null;
+        console.log("TESTE ====>>", user)
+        return NextResponse.json({error: "Email/password invalid!"});
       }
 
-      console.log(user)
+           
 
       return NextResponse.json({
         user: {

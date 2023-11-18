@@ -90,15 +90,16 @@ export const POST = async (req: Request) => {
         }
     
        })
+
+       const transport = nodemailer.createTransport({
+        host: "sandbox.smtp.mailtrap.io",
+        port: 2525,
+        auth: {
+          user: "826a5d3492a12f",
+          pass: "fcdb64df814226"
+        }
+      });
     
-        const transport = nodemailer.createTransport({
-            host: "sandbox.smtp.mailtrap.io",
-            port: 2525,
-            auth: {
-              user: "29dc3a30787fa8",
-              pass: "554f12abcbc072"
-            }
-          }); 
           
           const verificationLink = `http://localhost:3000/verifyPage?token=${token}&userId=${user.id}`;
           await transport.sendMail({
