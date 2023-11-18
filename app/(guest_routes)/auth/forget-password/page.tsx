@@ -63,7 +63,7 @@ export default function ForgetPassword() {
               onChange={handleChange}
               onBlur={handleBlur}
               error={error("email")} crossOrigin={undefined}      />
-      <Button type="submit" className="w-full" disabled={isSubmitting}>
+      <Button type="submit" className="w-full" color="blue" disabled={isSubmitting}>
         Send Link
       </Button>
       <div className="flex items-center justify-between">

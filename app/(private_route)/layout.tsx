@@ -9,11 +9,11 @@ interface Props {
     children: ReactNode
 }
 
-export default async function PrivateLayout({children}: Props) {
+export default async function PrivateLayout({children}: Props) {   
     const session = await getServerSession(authOptions)
-    console.log("Auth Session", session)
+    console.log("PRIVATE - Auth Session===>>", session)
     if (!session) return redirect("/auth/signin")
-    session.user
+  
    
   return (
     <div className='max-w-screen-xl mx-auto p-4 xl:p-0'>

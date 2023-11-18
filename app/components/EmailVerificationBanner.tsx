@@ -28,12 +28,12 @@ export default function EmailVerificationBanner() {
     if(profile?.emailVerified) return null;
 
   return (
-    <div className='p-2 text-center bg-blue-50'>
+    <div className="p-2 text-center bg-blue-50">
         <span>It looks like you haven't verified your email.</span>
         <button 
         disabled={submitting} 
         onClick={applyforReverification} 
-        className='ml-2 font-semibold underline'>
+        className="ml-2 font-semibold underline">
          { submitting ? "Generating link...": "Get verification link" } .
         </button>
     </div>

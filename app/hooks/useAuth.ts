@@ -1,6 +1,7 @@
 import { useSession } from "next-auth/react"
 import { SessionUserProfile } from "../types";
 
+
 interface Auth {
     loading: boolean;
     loggedIn: boolean;
@@ -16,7 +17,7 @@ export default function useAuth(): Auth {
   return { 
     loading: session.status === "loading",
     loggedIn: session.status === "authenticated",
-    isAdmin: false,
+    isAdmin: false,      
     profile: session.data?.user
   };
 }

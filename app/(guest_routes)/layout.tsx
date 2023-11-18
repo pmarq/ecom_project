@@ -8,9 +8,9 @@ interface Props {
     children: ReactNode
 }
 
-export default async function GuestLayout({children}: Props) {
+export default async function GuestLayout({children}: Props) {  
     const session = await getServerSession(authOptions)
-    console.log("Auth Session",session)
+    console.log("GUEST - Auth Session ====>",session)
     if (session) return redirect("/")
    
   return (

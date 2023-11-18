@@ -38,9 +38,9 @@ export default function SignIn() {
        const signInRes = await signIn("credentials", {
             ...values,
             redirect: false,
-        })
+        });       
 
-        if (signInRes?.error)  {
+        if (signInRes?.error === "CredentialsSignin")  {
           toast.error("Email/Password mismatch!")
 
         } if (!signInRes?.error){
