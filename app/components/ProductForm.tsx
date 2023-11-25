@@ -15,14 +15,15 @@ import React, {
 import { PlusIcon, TrashIcon } from "@heroicons/react/24/outline";
 import categories from "@/app/utils/categories";
 import ImageSelector from "./ImageSelector";
+import { NewProductInfo } from "../types";
 
 interface Props {
   initialValue?: InitialValue;
-  onSubmit(values: any): void;
+  onSubmit(values: NewProductInfo): void;
 }
 
-export interface InitialValue {
-  id: string;
+export interface InitialValue { 
+  userId: string
   title: string;
   description: string;
   thumbnail: string;
@@ -129,7 +130,10 @@ export default function ProductForm(props: Props) {
       <form
         action={() =>
           startTransition(async () => {
-            await onSubmit({ ...productInfo, images, thumbnail });
+            await onSubmit({
+                ...productInfo, images, thumbnail,
+                userId: "" // isso está certo?
+            });
           })
         }
         className="space-y-6"
