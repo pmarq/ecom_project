@@ -65,3 +65,21 @@ export interface SessionUserProfile {
     thumbnail?: File;
     images: File[]
  }
+
+ export interface info {
+    title: string;
+    description: string;
+    bulletPoints: string[];
+    mrp: number;
+    salePrice: number;
+    category: string;
+    quantity: number;
+    images: image[];
+    thumbnail: image;
+    userId: string;
+  }
+
+  export interface image {
+    url: string;
+    id: string;
+  }

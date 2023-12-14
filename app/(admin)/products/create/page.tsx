@@ -1,84 +1,71 @@
 "use client"
 
 import ProductForm from '@/app/components/ProductForm'
-import { NewProductInfo, Product } from '@/app/types'
-import { newProductInfoSchema } from '@/app/utils/validationProductSchema'
 import React from 'react'
-import { ValidationError } from 'yup'
-import { toast } from "react-toastify"
 import { uploadImage } from '@/app/utils/helper'
 import { createProduct } from '../action'
+import { NewProductInfo , image} from '@/app/types'
 
-/* export default function Create() {
-  const handleCreateProduct = async (values: NewProductInfo) => {
-    const {thumbnail, images} = values
-    try {
-     await newProductInfoSchema.validate(values, { abortEarly: false});
-     const thumbnailRes = uploadImage(thumbnail!);
-     
-     let productImages : {url: string, id:string}[] = []
-     if(images){
-       const uploadPromise = images.map(async (imageFile) => {
-       const {url, id} = await uploadImage(imageFile)
-       return {url, id}
-      })      
-      productImages = await Promise.all(uploadPromise)
-     }
+////tipagem???
 
-     createProduct({
-      ...values,   
-      thumbnail: thumbnailRes,
-      images: productImages,
-     }) */
-
-     async function uploadProductImages(images: File[]): Promise<{ url: string; id: string }[]> {
-      const uploadPromise = images.map(async (imageFile) => {
-        const { url, id } = await uploadImage(imageFile);
-        return { url, id };
+     function uploadProductImages(images: File[]) {
+      let uploadArrayPromise: Promise<image>[] = []
+        images.map ((item: File) => {
+        const createImg = uploadImage(item);
+        uploadArrayPromise.push(createImg)        
       });
-      return Promise.all(uploadPromise);
+      const arrayProductImg = Promise.all(uploadArrayPromise)
+      return arrayProductImg;
     }
-    
+
+
     export default function Create() {
+      let thumbnailObj: image;
+      let imagesObj: image[];
+    
       const handleCreateProduct = async (values: NewProductInfo) => {
-        const { thumbnail, images } = values;
+        const {
+          thumbnail,
+          images,
+          userId,
+          bulletPoints,
+          category,
+          description,
+          mrp,
+          quantity,
+          salePrice,
+          title,
+        } = values;
     
-        try {
-          await newProductInfoSchema.validate(values, { abortEarly: false });
-    
-          if (!thumbnail) {
-            throw new Error('Thumbnail is required.'); // Assuming thumbnail is mandatory
-          }
-    
+        if (thumbnail) {
           const thumbnailRes = await uploadImage(thumbnail);
+          thumbnailObj = thumbnailRes;
+        }
     
-          let productImages: { url: string; id: string }[] = [];
-          if (images && images.length > 0) {
-            productImages = await uploadProductImages(images);
-          }
+        if (images && images.length > 0) {
+          let resImgPromises = await uploadProductImages(images);
+          imagesObj = resImgPromises;
+        }
     
-          const product: Product = {
-            ...values,
-            thumbnail: thumbnailRes,
-            images: productImages,
-          };
+        const newObj = {
+          userId,
+          bulletPoints,
+          category,
+          description,
+          mrp,
+          quantity,
+          salePrice,
+          title,
+          thumbnail: thumbnailObj,
+          images: imagesObj,
+        };
     
-          createProduct(product);
+        createProduct(newObj);
+      };
     
-
-
-    } catch (error) {
-      if(error instanceof ValidationError) {
-        error.inner.map(err =>{ 
-          toast.error(err.message)
-        })
-      }      
-    }       
-  }
-
-  return (
-    <div>
-      <ProductForm onSubmit={handleCreateProduct}/>
-    </div>
-  )
-}
+      return (
+        <div>
+          <ProductForm onSubmit={handleCreateProduct} />
+        </div>
+      );
+    }

@@ -1,7 +1,7 @@
 "use server"
 
 import { startDb } from "@/app/lib/db"
-import { NewProductInfo, Product } from "@/app/types"
+import { image, info } from "@/app/types"
 import prisma from "@/prisma"
 import {v2 as cloudinary} from "cloudinary"
 
@@ -33,50 +33,87 @@ export const getCloudSigature = async () => {
 
 // create product
 
-export  const createProduct =async (info: Product) => {
-    try {
+export const createProduct = async (info: info) => {
+    console.log({ info });
+    const userId = info.userId;
 
-    await startDb()  
-    
-     // Prepare bullet points data
-     const bulletPointsData = info.bulletPoints?.map(content => ({
-        content,
-    }));
-
-    // Create thumbnails data
-    const thumbnailData = info.thumbnail ? [{ url: info.thumbnail }] : [];
-
-    // Create images data
-    const imagesData = info.images?.map(image => ({ url: image }));
-
-    await prisma.product.create({
-        data: {
-            title: info.title,
-            description: info.description,
-            bulletPoints: {
-                create: bulletPointsData,
-            },
-            thumbnails: {
-                create: thumbnailData as any[],
-            },
-            images: {
-                create: imagesData as any[],
-            },
-            mrp: info.mrp,
-            salePrice: info.salePrice,
-            quantity: info.quantity,
-            category: info.category, 
-            user: {
-                connect: { id: info.userId },
-            },                 
-        },
+    const sale = (info.mrp - info.salePrice)/info.mrp
+  
+    const defaultValues = {
+      title: info.title,
+      description: info.description,
+      price: {
+        base: info.mrp,
+        discounted: info.salePrice
+      },
+      sale,     
+      category: info.category,
+      quantity: info.quantity,
+    };
+  
+    const product = await prisma.product.create({
+      data: {
+        ...defaultValues,
+        user: { connect: { id: userId } },
+      },
     });
-        
-    
-    } catch (error) {
-        console.log((error as any).message);
-        throw  new Error("Something went wrong, can not create product!")
-        
+  
+    const productId = product.id;
+  
+    function bulletPointsCreate() {
+      info.bulletPoints.map((item: string) => {
+        createBullet(item);
+      });
     }
-    
+    bulletPointsCreate();
+  
+    async function createBullet(str: string) {
+      await prisma.bulletPoint.create({
+        data: {
+          content: str,
+          product: { connect: { id: productId } },
+        },
+      });
+    }
+  
+    const createImg = async (obj: image) => {
+      await prisma.image.create({
+        data: {
+          url: obj.url,
+          product: { connect: { id: productId } },
+        },
+      });
+    };
+  
+    const imgCreate = () => {
+      info.images.map((item: image) => {
+        createImg(item);
+      });
+    };
+    imgCreate();
+  
+    await prisma.thumbnail.create({
+      data: {
+        url: info.thumbnail.url,
+        product: { connect: { id: productId } },
+      },
+    });
+
 }
+
+export const fetchProducts = async(userId: string) => {
+  await startDb()
+  const allProds = await prisma.product.findMany({
+    where: {userId: userId},
+    select: {
+      thumbnails: true,
+      price: true,
+      quantity: true,
+      category: true,
+      title: true,
+      id: true,
+    }    
+  });
+  return allProds;
+}
+

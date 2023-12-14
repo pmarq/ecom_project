@@ -16,6 +16,11 @@ import { PlusIcon, TrashIcon } from "@heroicons/react/24/outline";
 import categories from "@/app/utils/categories";
 import ImageSelector from "./ImageSelector";
 import { NewProductInfo } from "../types";
+import { getServerSession } from "next-auth";
+import { authOptions } from "../api/auth/[...nextauth]/route";
+import { useSession } from "next-auth/react";
+import { showReaisMask } from "../utils/helpers/mask";
+
 
 interface Props {
   initialValue?: InitialValue;
@@ -54,6 +59,29 @@ export default function ProductForm(props: Props) {
   const [productInfo, setProductInfo] = useState({ ...defaultValue });
   const [thumbnailSource, setThumbnailSource] = useState<string[]>();
   const [productImagesSource, setProductImagesSource] = useState<string[]>();
+  
+  const [sttValue, setValue] = useState({
+    mrp: "",
+    salePrice: "",
+  });
+
+  const session = useSession() 
+ 
+
+  useEffect(() => {
+    const fetchSession = async () => {
+      try {
+        const session = await getServerSession(authOptions);
+        console.log("session product form ====>>>>", session);
+        // Use the session data as needed
+      } catch (error) {
+        console.error("Error fetching session:", error);
+        // Handle the error appropriately
+      }
+    };
+
+    fetchSession();
+  }, []); // Ensure the effect runs only once
 
   const fields = productInfo.bulletPoints;
 
@@ -132,7 +160,7 @@ export default function ProductForm(props: Props) {
           startTransition(async () => {
             await onSubmit({
                 ...productInfo, images, thumbnail,
-                userId: "" // isso está certo?
+                userId: session.data?.user.id // isso está certo?
             });
           })
         }
@@ -189,19 +217,19 @@ export default function ProductForm(props: Props) {
             <h3>Price</h3>
 
             <Input
-                          value={productInfo.mrp}
+                          value={showReaisMask(sttValue.mrp, productInfo, setProductInfo, "mrp").mask}                        
                           label="MRP"
-                          onChange={({ target }) => {
-                              const mrp = +target.value;
-                              setProductInfo({ ...productInfo, mrp });
+                          onChange={({ target }) => {                             
+                              const txt = target.value
+                              setValue({...sttValue, mrp:txt})
                           } }
                           className="mb-4" crossOrigin={undefined}            />
             <Input
-                          value={productInfo.salePrice}
+                          value={showReaisMask(sttValue.salePrice, productInfo, setProductInfo, "salePrice").mask}                          
                           label="Sale Price"
-                          onChange={({ target }) => {
-                              const salePrice = +target.value;
-                              setProductInfo({ ...productInfo, salePrice });
+                          onChange={({ target }) => {                            
+                              const txt = target.value
+                              setValue({...sttValue, salePrice:txt})
                           } }
                           className="mb-4" crossOrigin={undefined}            />
           </div>

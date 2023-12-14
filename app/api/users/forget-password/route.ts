@@ -42,7 +42,7 @@ export const POST = async (req: Request) => {
 
      // send the link to the given email.     
 
-     const transport = nodemailer.createTransport({
+  const transport = nodemailer.createTransport({
   host: "sandbox.smtp.mailtrap.io",
   port: 2525,
   auth: {
