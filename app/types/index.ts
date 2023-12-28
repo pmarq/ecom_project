@@ -93,7 +93,7 @@ export interface SessionUserProfile {
     salePrice: number;
     category: string | undefined;
     quantity: number  | undefined;
-    thumbnail?: {url: string; id: string} | undefined;
+    thumbnail?: {url: string; id: string};
     images?: {url: string; id: string}[];
 
  }

@@ -19,6 +19,8 @@ export default function UpdateProduct({product}:Props) {
 
     }
   return (
-    <ProductForm initialValue={initialValue} />   
+    <ProductForm initialValue={initialValue} onSubmit={(values)=>{
+        console.log(values)
+    }} />   
   )
 }

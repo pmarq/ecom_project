@@ -11,7 +11,7 @@ interface Props {
     }
 }
 
-const fetchProductInfo = async (productId: string): Promise<ProductResponse> => {
+const fetchProductInfo = async (productId: string): Promise<string> => {
     await startDb()
 
     const validProduct = await prisma.product.findUnique({
@@ -38,7 +38,8 @@ const fetchProductInfo = async (productId: string): Promise<ProductResponse> => 
                 images: true
             }
         })  
-        return {
+
+        const finalProduct : ProductResponse  = {
             id: product?.id.toString(),
             title: product?.title,
             description: product?.description,
@@ -51,6 +52,7 @@ const fetchProductInfo = async (productId: string): Promise<ProductResponse> => 
             thumbnail: product?.thumbnails,
             category: product?.category
         }
+        return JSON.stringify(finalProduct)
     }   
    
 
@@ -59,7 +61,6 @@ export default async function UpdatePage(props: Props) {
     const product = await fetchProductInfo(productId)
     console.log(product)
   return (
-    <UpdateProduct product={product}/>
-    //<UpdateProduct product={product}/>
+    <UpdateProduct product={JSON.parse(product)}/>   
   )
 }
