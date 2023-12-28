@@ -1,4 +1,5 @@
 "use client";
+
 import { PencilIcon } from "@heroicons/react/24/solid";
 import { PlusIcon } from "@heroicons/react/24/outline";
 import {
@@ -82,7 +83,8 @@ export default function ProductTable(props: Props) {
   async function getProducts() {
     const session = useSession();
     const userId = session.data?.user.id;
-    const allProds = await fetchProducts(userId as string); // coloquei as string
+    const allProds = await fetchProducts(userId, 1, 1);
+    console.log({allProds})
 
     if (allProds && sttProdsFirstTime) {
       setProds(allProds), setProdsFirstTime(false);

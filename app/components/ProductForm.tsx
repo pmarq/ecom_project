@@ -23,7 +23,8 @@ import { showReaisMask } from "../utils/helpers/mask";
 
 
 interface Props {
-  initialValue?: InitialValue;
+  initialValue?: any;
+  // initialValue?: InitialValue;
   onSubmit(values: NewProductInfo): void;
 }
 
@@ -60,13 +61,14 @@ export default function ProductForm(props: Props) {
   const [thumbnailSource, setThumbnailSource] = useState<string[]>();
   const [productImagesSource, setProductImagesSource] = useState<string[]>();
   
+    const session = useSession() 
+
+    const user = session.data?.user;
+
   const [sttValue, setValue] = useState({
     mrp: "",
     salePrice: "",
-  });
-
-  const session = useSession() 
- 
+  }); 
 
   useEffect(() => {
     const fetchSession = async () => {
@@ -126,6 +128,7 @@ export default function ProductForm(props: Props) {
       setIsForUpdate(true);
     }
   }, []);
+  console.log({fields, initialValue})
 
   const onImagesChange: ChangeEventHandler<HTMLInputElement> = ({ target }) => {
     const files = target.files;
@@ -160,7 +163,7 @@ export default function ProductForm(props: Props) {
           startTransition(async () => {
             await onSubmit({
                 ...productInfo, images, thumbnail,
-                userId: session.data?.user.id // isso está certo?
+                userId: user?.id // isso está certo?
             });
           })
         }

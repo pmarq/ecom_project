@@ -1,5 +1,4 @@
 import ProductTable from '@/app/components/ProductTable'
-import prisma from '@/prisma'
 import React from 'react'
 
 

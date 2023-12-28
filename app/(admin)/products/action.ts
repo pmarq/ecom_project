@@ -101,10 +101,14 @@ export const createProduct = async (info: info) => {
 
 }
 
-export const fetchProducts = async(userId: string) => {
+/* export const fetchProducts = async(userId: string | undefined) => {
   await startDb()
   const allProds = await prisma.product.findMany({
-    where: {userId: userId},
+    where: {
+      userId: userId,
+      price: { not: null as any}, //solução chat gpt**
+    },
+    
     select: {
       thumbnails: true,
       price: true,
@@ -113,6 +117,33 @@ export const fetchProducts = async(userId: string) => {
       title: true,
       id: true,
     }    
+  });
+  return allProds;
+} */
+
+export const fetchProducts = async (userId: string | undefined, pageNo:number, perPage:number) => {
+  const skipCount = (pageNo -1) * perPage;
+  await startDb()
+  const allProds = await prisma.product.findMany({
+    where: {
+      userId: userId,
+      price: { not: null as any}, //solução chat gpt**    
+    },
+    orderBy: {
+      createdAt: "desc"
+    },
+    
+    select: {
+      thumbnails: true,
+      price: true,
+      quantity: true,
+      category: true,
+      title: true,
+      id: true,
+      createdAt: true,
+    },   
+    skip: skipCount, // Skip the appropriate number of products based on page number
+    take: perPage, // Retrieve 'perPage' number of products
   });
   return allProds;
 }
