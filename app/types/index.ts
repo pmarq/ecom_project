@@ -76,7 +76,7 @@ export interface SessionUserProfile {
     quantity: number;
     images: image[];
     thumbnail: image;
-    userId: string;
+    userId: string | undefined;
   }
 
   export interface image {
@@ -85,15 +85,19 @@ export interface SessionUserProfile {
   }
 
   export interface ProductResponse {
-    userId: string;   
-    title: string | undefined;
-    description: string | undefined;
-    bulletPoints?: string[];
+    id:string;
+    userId: string;
+    title: string ;
+    description: string;
+    bulletPoints?: { id: string; content: string; productId: string }[];
     mrp: number;
     salePrice: number;
-    category: string | undefined;
-    quantity: number  | undefined;
-    thumbnail?: {url: string; id: string};
-    images?: {url: string; id: string}[];
-
- }
+    price:{
+      base: number;
+      discounted: number;
+    }
+    category: string;
+    quantity: number;
+    thumbnail?: { url: string; id: string }[] | undefined;
+    images?: { url: string; id: string }[];
+  }

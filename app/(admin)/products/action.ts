@@ -101,26 +101,6 @@ export const createProduct = async (info: info) => {
 
 }
 
-/* export const fetchProducts = async(userId: string | undefined) => {
-  await startDb()
-  const allProds = await prisma.product.findMany({
-    where: {
-      userId: userId,
-      price: { not: null as any}, //solução chat gpt**
-    },
-    
-    select: {
-      thumbnails: true,
-      price: true,
-      quantity: true,
-      category: true,
-      title: true,
-      id: true,
-    }    
-  });
-  return allProds;
-} */
-
 export const fetchProducts = async (userId: string | undefined, pageNo:number, perPage:number) => {
   const skipCount = (pageNo -1) * perPage;
   await startDb()
@@ -148,3 +128,6 @@ export const fetchProducts = async (userId: string | undefined, pageNo:number, p
   return allProds;
 }
 
+export const removeImageFromCloud = async (publicId: string) => {
+  await cloudinary.uploader.destroy(publicId);
+};

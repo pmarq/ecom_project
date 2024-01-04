@@ -22,9 +22,8 @@ import { useSession } from "next-auth/react";
 import { showReaisMask } from "../utils/helpers/mask";
 
 
-interface Props {
-  initialValue?: any;
-  // initialValue?: InitialValue;
+interface Props {  
+  initialValue?: InitialValue;
   onSubmit(values: NewProductInfo): void;
 }
 
@@ -37,6 +36,10 @@ export interface InitialValue {
   bulletPoints: string[];
   mrp: number;
   salePrice: number;
+  price:{
+    base:number,
+    discounted:number,
+  }
   category: string;
   quantity: number;
 }
@@ -110,6 +113,7 @@ export default function ProductForm(props: Props) {
     setProductInfo({ ...productInfo, bulletPoints: [...oldValues] });
   };
 
+  //////
   const removeImage = async (index: number) => {
     const newImages = images.filter((_, idx) => idx !== index);
     setImages([...newImages]);
@@ -122,13 +126,17 @@ export default function ProductForm(props: Props) {
 
   useEffect(() => {
     if (initialValue) {
+      const mrpRaw = initialValue?.price?.base && initialValue.price.base*100
+      const salePriceRaw = initialValue?.price?.discounted && initialValue?.price?.discounted*100
+      const mrp = String(mrpRaw)??"0";
+      const salePrice = String(salePriceRaw)??"0"
+      setValue({mrp, salePrice});   // O erro está aqui! 
       setProductInfo({ ...initialValue });
       setThumbnailSource([initialValue.thumbnail]);
       setProductImagesSource(initialValue.images);
       setIsForUpdate(true);
     }
   }, []);
-  console.log({fields, initialValue})
 
   const onImagesChange: ChangeEventHandler<HTMLInputElement> = ({ target }) => {
     const files = target.files;
@@ -163,7 +171,7 @@ export default function ProductForm(props: Props) {
           startTransition(async () => {
             await onSubmit({
                 ...productInfo, images, thumbnail,
-                userId: user?.id // isso está certo?
+                userId: user?.id  
             });
           })
         }

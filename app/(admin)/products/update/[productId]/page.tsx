@@ -3,6 +3,7 @@ import { startDb } from '@/app/lib/db'
 import { ProductResponse } from '@/app/types'
 import prisma from '@/prisma'
 import { redirect } from 'next/navigation'
+import { parse } from 'path'
 import React from 'react'
 
 interface Props {
@@ -39,18 +40,25 @@ const fetchProductInfo = async (productId: string): Promise<string> => {
             }
         })  
 
+        const prod = product?.price
+        const str = JSON.stringify(prod)
+        const obj = JSON.parse(str)
+
         const finalProduct : ProductResponse  = {
-            id: product?.id.toString(),
-            title: product?.title,
-            description: product?.description,
-            quantity: product?.quantity,
-            price: product?.price,
-            bulletpoints: product?.bulletPoints,
-            images: product?.images.map(({url, id})=>{
-                return {url, id}
+            id: product?.id.toString() ?? "",
+            title: product?.title ?? "",
+            description: product?.description ?? "",
+            quantity: product?.quantity ?? 0,
+            price: { base: obj.base, discounted: obj.discounted },
+            bulletPoints: product?.bulletPoints,
+            images: product?.images.map(({ url, id }) => {
+                return { url, id }
             }),
             thumbnail: product?.thumbnails,
-            category: product?.category
+            category: product?.category ?? "",
+            userId: '',
+            mrp: 0,
+            salePrice: 0
         }
         return JSON.stringify(finalProduct)
     }   
