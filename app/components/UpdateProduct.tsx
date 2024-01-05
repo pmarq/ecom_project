@@ -3,6 +3,7 @@
 import React from 'react'
 import ProductForm from './ProductForm'
 import { ProductResponse } from '../types'
+import { removeAndUpdateProductImage } from '../(admin)/products/action'
 
 interface Props {
    product: ProductResponse
@@ -31,11 +32,25 @@ export default function UpdateProduct({product}:Props) {
         mrp: product.mrp,
         salePrice: product.salePrice,
         bulletPoints: bulletPoint,
+        }
 
+
+    const handleImageRemove = (source: string) => {
+        const splittedData = source.split("/");
+        const lastItem = splittedData[splittedData.length - 1];
+
+        const publicId = lastItem.split(".")[0];
+
+        removeAndUpdateProductImage(product.id, publicId)
     }
+
+
   return (
-    <ProductForm initialValue={initialValue} onSubmit={(values)=>{
-        console.log(values)
+    <ProductForm
+     onImageRemove={handleImageRemove}
+     initialValue={initialValue} 
+     onSubmit={(values)=>{
+     console.log(values)
     }} />   
   )
 }

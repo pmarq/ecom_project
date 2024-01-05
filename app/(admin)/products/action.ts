@@ -131,3 +131,50 @@ export const fetchProducts = async (userId: string | undefined, pageNo:number, p
 export const removeImageFromCloud = async (publicId: string) => {
   await cloudinary.uploader.destroy(publicId);
 };
+
+/* export const removeAndUpdateProductImage = async (id: string, publicId: string) => {
+  const { result } = await cloudinary.uploader.destroy(publicId);
+  if (result === "ok") {
+    await startDb()
+    await prisma.image.update({
+      where: {
+        id: publicId
+      },
+      data: undefined
+    })
+  }
+}
+ */
+
+export const removeAndUpdateProductImage = async (productId: string, imageId: string) => {
+  const { result } = await cloudinary.uploader.destroy(imageId);
+  if (result === 'ok') {
+    try {
+      await prisma.$connect();
+
+      // Remove the image associated with the productId
+      await prisma.image.delete({
+        where: {
+          id: imageId,
+          productId,
+        },
+      });
+
+      // If you want to remove the image from the product's 'images' relation as well:
+      await prisma.product.update({
+        where: {
+          id: productId,
+        },
+        data: {
+          images: {
+            disconnect: {
+              id: imageId,
+            },
+          },
+        },
+      });
+    } catch (error) {
+      console.error('Error removing/updating product image:', error);
+    } 
+  }
+};

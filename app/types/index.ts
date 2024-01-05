@@ -63,7 +63,7 @@ export interface SessionUserProfile {
     category: string;
     quantity: number;
     thumbnail?: File;
-    images: File[]
+    imagesFiles: File[]
  }
 
  export interface info {
