@@ -2,8 +2,8 @@
 
 import React from 'react'
 import ProductForm from './ProductForm'
-import { ProductResponse } from '../types'
-import { removeAndUpdateProductImage } from '../(admin)/products/action'
+import { NewProductInfo, ProductResponse, ProductToUpdate } from '../types'
+import { removeAndUpdateProductImage, removeImageFromCloud } from '../(admin)/products/action'
 
 interface Props {
    product: ProductResponse
@@ -35,22 +35,64 @@ export default function UpdateProduct({product}:Props) {
         }
 
 
-    const handleImageRemove = (source: string) => {
+    const handleImageRemove = (source: string, index: number) => {
         const splittedData = source.split("/");
         const lastItem = splittedData[splittedData.length - 1];
 
         const publicId = lastItem.split(".")[0];
 
-        removeAndUpdateProductImage(product.id, publicId)
+        const imageIdMongo = product.images?product.images[index].id:""
+
+        removeAndUpdateProductImage(product.id, publicId, imageIdMongo)
     }
 
+    //////////////// onSubmit***
+
+    /* const handleOnSubmit = async (values: NewProductInfo) => {     
+
+        const dataToUpdate: ProductToUpdate  = {
+          title: values.title,
+          description: values.description,
+          bulletPoints: product.thumbnail?product.thumbnail[0].url:"",
+          category: values.category,
+          quantity: values.quantity,
+          price: {
+            base: values.mrp,
+            discounted: values.salePrice
+          }        
+        }
+                
+        if (thumbnail) {
+          const thumbnailRes = await removeImageFromCloud(product.thumbnail.id)
+        }
+    
+        if (images && images.length > 0) {
+          let resImgPromises = await uploadProductImages(images);
+          imagesObj = resImgPromises;
+        }
+    
+        const newObj = {
+          userId,
+          bulletPoints,
+          category,
+          description,
+          mrp,
+          quantity,
+          salePrice,
+          title,
+          thumbnail: thumbnailObj,
+          images: imagesObj,
+        };
+    
+        createProduct(newObj);
+      };
+     */
 
   return (
     <ProductForm
      onImageRemove={handleImageRemove}
      initialValue={initialValue} 
-     onSubmit={(values)=>{
-     console.log(values)
-    }} />   
-  )
-}
+     onSubmit= {(values) => {console.log(values)}}
+     />   
+  );
+};

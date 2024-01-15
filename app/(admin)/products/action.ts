@@ -79,6 +79,7 @@ export const createProduct = async (info: info) => {
     const createImg = async (obj: image) => {
       await prisma.image.create({
         data: {
+          publicId: obj.publicId,
           url: obj.url,
           product: { connect: { id: productId } },
         },
@@ -94,6 +95,7 @@ export const createProduct = async (info: info) => {
   
     await prisma.thumbnail.create({
       data: {
+        publicId: info.thumbnail.publicId,
         url: info.thumbnail.url,
         product: { connect: { id: productId } },
       },
@@ -128,34 +130,23 @@ export const fetchProducts = async (userId: string | undefined, pageNo:number, p
   return allProds;
 }
 
-export const removeImageFromCloud = async (publicId: string) => {
+export const removeImageFromCloud = async (publicId: string) => {  
   await cloudinary.uploader.destroy(publicId);
-};
+};  ///quem é pucblicId???
 
-/* export const removeAndUpdateProductImage = async (id: string, publicId: string) => {
-  const { result } = await cloudinary.uploader.destroy(publicId);
-  if (result === "ok") {
-    await startDb()
-    await prisma.image.update({
-      where: {
-        id: publicId
-      },
-      data: undefined
-    })
-  }
-}
- */
 
-export const removeAndUpdateProductImage = async (productId: string, imageId: string) => {
+export const removeAndUpdateProductImage = async (productId: string, imageId: string, imageIdMongo: string) => {
   const { result } = await cloudinary.uploader.destroy(imageId);
+  console.log({result})
+  console.log(productId, imageId)
   if (result === 'ok') {
     try {
-      await prisma.$connect();
+      await startDb();
 
       // Remove the image associated with the productId
       await prisma.image.delete({
         where: {
-          id: imageId,
+          id: imageIdMongo,
           productId,
         },
       });
@@ -168,7 +159,7 @@ export const removeAndUpdateProductImage = async (productId: string, imageId: st
         data: {
           images: {
             disconnect: {
-              id: imageId,
+              id: imageIdMongo,
             },
           },
         },

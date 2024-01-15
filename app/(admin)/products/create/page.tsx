@@ -4,7 +4,7 @@ import ProductForm from '@/app/components/ProductForm'
 import React from 'react'
 import { uploadImage } from '@/app/utils/helper'
 import { createProduct } from '../action'
-import { NewProductInfo , image} from '@/app/types'
+import { NewProductInfo, image } from '@/app/types'
 
 ////tipagem???
 
@@ -15,7 +15,9 @@ import { NewProductInfo , image} from '@/app/types'
         uploadArrayPromise.push(createImg)        
       });
       const arrayProductImg = Promise.all(uploadArrayPromise)
+      console.log(arrayProductImg)
       return arrayProductImg;
+      
     }
 
 
@@ -26,7 +28,7 @@ import { NewProductInfo , image} from '@/app/types'
       const handleCreateProduct = async (values: NewProductInfo) => {
         const {
           thumbnail,
-          images,
+          imagesFiles: images,
           userId,
           bulletPoints,
           category,

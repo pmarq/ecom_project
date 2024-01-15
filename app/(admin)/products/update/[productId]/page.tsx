@@ -51,8 +51,8 @@ const fetchProductInfo = async (productId: string): Promise<string> => {
             quantity: product?.quantity ?? 0,
             price: { base: obj.base, discounted: obj.discounted },
             bulletPoints: product?.bulletPoints,
-            images: product?.images.map(({ url, id }) => {
-                return { url, id }
+            images: product?.images.map(({ url, id, publicId}) => {
+                return { url, id, publicId }
             }),
             thumbnail: product?.thumbnails,
             category: product?.category ?? "",

@@ -48,8 +48,8 @@ export interface SessionUserProfile {
     salePrice: number;
     category: string;
     quantity: number;
-    thumbnail?: {url: string; id: string};
-    images?: {url: string; id: string}[];
+    thumbnail?: {url: string; id: string; publicId: string};
+    images?: {url: string; id: string; publicId: string}[];
 
  }
 
@@ -80,11 +80,29 @@ export interface SessionUserProfile {
   }
 
   export interface image {
-    url: string;
-    id: string;
+    url: string;    
+    publicId: string
   }
 
   export interface ProductResponse {
+    id:string;
+    userId: string;
+    title: string ;
+    description: string;
+    bulletPoints?: { id: string; content: string; productId: string }[];
+    mrp: number;
+    salePrice: number;
+    price:{
+      base: number;
+      discounted: number;
+    }
+    category: string;
+    quantity: number;
+    thumbnail?: { url: string; id: string; publicId: string }[] | undefined;
+    images?: { url: string; id: string; publicId: string }[];
+  }
+
+  export interface ProductToUpdate {
     id:string;
     userId: string;
     title: string ;

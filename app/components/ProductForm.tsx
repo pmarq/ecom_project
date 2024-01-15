@@ -25,7 +25,7 @@ import { showReaisMask } from "../utils/helpers/mask";
 interface Props {  
   initialValue?: InitialValue;
   onSubmit(values: NewProductInfo): void;
-  onImageRemove?(source: string): void;
+  onImageRemove?(source: string, index: number): void;
 }
 
 export interface InitialValue { 
@@ -123,7 +123,7 @@ export default function ProductForm(props: Props) {
     const imageToRemove = productImagesSource[index]
     const cloudSourceUrl = "https://res.cloudinary.com"
     if(imageToRemove.startsWith(cloudSourceUrl)){
-      onImageRemove && onImageRemove(imageToRemove)
+      onImageRemove && onImageRemove(imageToRemove, index)
 
     } else {      
 

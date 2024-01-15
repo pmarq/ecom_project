@@ -19,6 +19,6 @@ export const uploadImage = async (file: File) => {
     })
 
     const data = await res.json()
-    return { url: data.secure_url, id: data.public_id}
+    return { url: data.secure_url, publicId: data.public_id}
     
 }
