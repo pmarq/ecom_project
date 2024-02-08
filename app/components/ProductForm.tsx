@@ -26,6 +26,8 @@ interface Props {
   initialValue?: InitialValue;
   onSubmit(values: NewProductInfo): void;
   onImageRemove?(source: string, index: number): void;
+  onBulletPointRemove?(value: any): void;
+
 }
 
 export interface InitialValue { 
@@ -34,7 +36,7 @@ export interface InitialValue {
   description: string;
   thumbnail: string;
   images?: string[];
-  bulletPoints: string[];
+  bulletPoints: any[]; ///ANY*****
   mrp: number;
   salePrice: number;
   price:{
@@ -48,7 +50,7 @@ export interface InitialValue {
 const defaultValue = {
   title: "",
   description: "",
-  bulletPoints: [""],
+  bulletPoints: [{content:'', id:'', productId:''}],
   mrp: 0,
   salePrice: 0,
   category: "",
@@ -56,7 +58,7 @@ const defaultValue = {
 };
 
 export default function ProductForm(props: Props) {
-  const { onSubmit, onImageRemove, initialValue } = props;
+  const { onSubmit, onImageRemove, initialValue , onBulletPointRemove} = props;
   const [isPending, startTransition] = useTransition();
   const [imagesFiles, setImagesFiles] = useState<File[]>([]);
   const [thumbnail, setThumbnail] = useState<File>();
@@ -89,32 +91,53 @@ export default function ProductForm(props: Props) {
     fetchSession();
   }, []); // Ensure the effect runs only once
 
-  const fields = productInfo.bulletPoints;
+
+
+  //------BULLETPOINTS---------------
+
+
+ const fields = productInfo.bulletPoints 
+
+  console.log("ESTE FILEDS ====>>",{ fields });
 
   const addMoreBulletPoints = () => {
     setProductInfo({
       ...productInfo,
-      bulletPoints: [...productInfo.bulletPoints, ""],
+      bulletPoints: [...productInfo.bulletPoints,{content:'', id:'', productId:''}],
     });
   };
 
-  const removeBulletPoint = (indexToRemove: number) => {
+
+  const removeBulletPoint = (indexToRemove: number, field: any) => {
     const points = [...productInfo.bulletPoints];
     const filteredPoints = points.filter((_, index) => index !== indexToRemove);
     setProductInfo({
       ...productInfo,
       bulletPoints: [...filteredPoints],
     });
+
+    console.log({ onBulletPointRemove });
+
+    if (onBulletPointRemove) {
+      onBulletPointRemove(field);
+      console.log({ productInfo });
+    }
   };
+
 
   const updateBulletPointValue = (value: string, index: number) => {
     const oldValues = [...fields];
-    oldValues[index] = value;
-
+    const obj = {...fields[index]};
+    oldValues[index] = {...obj, content: value}; 
+    
     setProductInfo({ ...productInfo, bulletPoints: [...oldValues] });
+   
   };
 
-  //////
+
+  /////////////////////
+
+
   const removeImage = async (index: number) => {
     if(!productImagesSource) return;
 
@@ -292,13 +315,13 @@ export default function ProductForm(props: Props) {
             <div key={index} className="flex items-center">
               <Input
                       type="text"
-                      value={field}
+                      value={field.content}
                       label={`Bullet point ${index + 1}`}
                       onChange={({ target }) => updateBulletPointValue(target.value, index)}
                       className="mb-4" crossOrigin={undefined}              />
               {fields.length > 1 ? (
                 <button
-                  onClick={() => removeBulletPoint(index)}
+                  onClick={() => removeBulletPoint(index, field)}
                   type="button"
                   className="ml-2"
                 >

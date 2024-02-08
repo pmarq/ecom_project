@@ -2,8 +2,11 @@
 
 import React from 'react'
 import ProductForm from './ProductForm'
-import { NewProductInfo, ProductResponse, ProductToUpdate } from '../types'
-import { removeAndUpdateProductImage, removeImageFromCloud } from '../(admin)/products/action'
+import { BulletPoints, NewProductInfo, ProductDataToUpdate, ProductResponse, ProductToUpdate, image } from '../types'
+import { deleteBulletPoint, removeAndUpdateProductImage, removeImageFromCloud, updateProduct } from '../(admin)/products/action'
+import { uploadImage } from '../utils/helper'
+
+
 
 interface Props {
    product: ProductResponse
@@ -11,19 +14,19 @@ interface Props {
 
 export default function UpdateProduct({product}:Props) {   
     let img: string[] = []
-    let bulletPoint: string[] = []
+    let bulletPoint: BulletPoints[] = [];
 
     product?.images?.map((item: { url: string; id:string }) => {
         const url = item.url;
         img.push(url);
     });
 
-    product?.bulletPoints?.map((item: { id:string; content:string; productId:string }) =>{
-        const content = item.content;
-        bulletPoint.push(content)
-    })
-
-
+    product?.bulletPoints?.map(
+      (item: { id: string; content: string; productId: string }) => {
+        const content = item.content;       
+        bulletPoint.push(item);
+      }
+    );
 
     const initialValue = {
         ...product,
@@ -34,6 +37,8 @@ export default function UpdateProduct({product}:Props) {
         bulletPoints: bulletPoint,
         }
 
+        console.log("BULLETPOINT INICIAL", bulletPoint)
+
 
     const handleImageRemove = (source: string, index: number) => {
         const splittedData = source.split("/");
@@ -41,58 +46,83 @@ export default function UpdateProduct({product}:Props) {
 
         const publicId = lastItem.split(".")[0];
 
-        const imageIdMongo = product.images?product.images[index].id:""
+        const imageIdMongo = product.images ? product.images[index].id:""
 
         removeAndUpdateProductImage(product.id, publicId, imageIdMongo)
     }
-
-    //////////////// onSubmit***
-
-    /* const handleOnSubmit = async (values: NewProductInfo) => {     
-
-        const dataToUpdate: ProductToUpdate  = {
-          title: values.title,
-          description: values.description,
-          bulletPoints: product.thumbnail?product.thumbnail[0].url:"",
-          category: values.category,
-          quantity: values.quantity,
-          price: {
-            base: values.mrp,
-            discounted: values.salePrice
-          }        
-        }
-                
-        if (thumbnail) {
-          const thumbnailRes = await removeImageFromCloud(product.thumbnail.id)
-        }
     
-        if (images && images.length > 0) {
-          let resImgPromises = await uploadProductImages(images);
-          imagesObj = resImgPromises;
-        }
+
+   ////// onSubmit ***
+
+
+   const handleOnSubmit = async (values: NewProductInfo) => {
+    console.log("VALUES HANDLEONSUBMIT ===>>",{values});
     
-        const newObj = {
-          userId,
-          bulletPoints,
-          category,
-          description,
-          mrp,
-          quantity,
-          salePrice,
-          title,
-          thumbnail: thumbnailObj,
-          images: imagesObj,
-        };
-    
-        createProduct(newObj);
+    try {      
+      const {thumbnail, imagesFiles} = values
+
+      const dataToUpdate: ProductDataToUpdate = {
+        title: values.title,
+        description: values.description,
+        bulletPoints: values.bulletPoints,
+        category: values.category,
+        quantity: values.quantity,
+        price: {
+          base: values.mrp,
+          discounted: values.salePrice,
+        },
+        thumbnailId: product.thumbnail?product.thumbnail[0].id:''
       };
-     */
+
+     console.log("BULLTPOSINTS ===>>>", values.bulletPoints)
+
+      if (thumbnail) {
+        console.log("thumbnail====>", thumbnail)
+        console.log("thumbnailOld", initialValue.thumbnail)   
+ 
+        //Seria pelo initialValue que está sendo puxado pelo ProductResponse do fetchProductInfo.
+
+        const source = initialValue.thumbnail
+        const splittedData = source.split("/")
+        console.log("Data ThumbnailOld",splittedData)
+        const lastItem = splittedData[splittedData.length -1];
+        const publicIdOld = lastItem.split(".")[0]; 
+        await removeImageFromCloud(publicIdOld);
+
+        const { publicId, url } = await uploadImage(thumbnail)
+        dataToUpdate.thumbnail = {publicId, url}             
+
+        if(imagesFiles.length) {
+          const uploadPromise = imagesFiles.map(async(imgFile:File) => {
+            return await uploadImage(imgFile)
+          })
+          dataToUpdate.images = await Promise.all(uploadPromise)         
+        } 
+      }      
+      updateProduct(product.id, dataToUpdate)
+      console.log({dataToUpdate})   
+      
+    } catch (error) {
+      console.log("erro" + error);      
+    }
+  };
+
+  function handleBulletPointRemove(values: BulletPoints) {
+    deleteBulletPoint({
+      id: values.id,
+      content: values.content,
+      productId: values.productId
+    });
+  }
+
+
 
   return (
     <ProductForm
      onImageRemove={handleImageRemove}
      initialValue={initialValue} 
-     onSubmit= {(values) => {console.log(values)}}
+     onSubmit= {handleOnSubmit}
+     onBulletPointRemove={handleBulletPointRemove}
      />   
   );
 };

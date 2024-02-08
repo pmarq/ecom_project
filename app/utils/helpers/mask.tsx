@@ -1,7 +1,9 @@
+import { BulletPoints } from "@/app/types";
+
 interface Prods {
     title: string;
     description: string;
-    bulletPoints: string[];
+    bulletPoints: BulletPoints[];
     mrp: number;
     salePrice: number;
     category: string;

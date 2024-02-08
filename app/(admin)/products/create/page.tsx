@@ -6,7 +6,7 @@ import { uploadImage } from '@/app/utils/helper'
 import { createProduct } from '../action'
 import { NewProductInfo, image } from '@/app/types'
 
-////tipagem???
+
 
      function uploadProductImages(images: File[]) {
       let uploadArrayPromise: Promise<image>[] = []
@@ -16,8 +16,7 @@ import { NewProductInfo, image } from '@/app/types'
       });
       const arrayProductImg = Promise.all(uploadArrayPromise)
       console.log(arrayProductImg)
-      return arrayProductImg;
-      
+      return arrayProductImg;      
     }
 
 

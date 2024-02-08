@@ -1,9 +1,11 @@
 "use server"
 
 import { startDb } from "@/app/lib/db"
-import { image, info } from "@/app/types"
+import { BulletPoints, ProductDataToUpdate, ProductResponse, image, info } from "@/app/types"
 import prisma from "@/prisma"
 import {v2 as cloudinary} from "cloudinary"
+import { redirect } from "next/navigation"
+
 
 cloudinary.config({
     cloud_name: process.env.CLOUD_NAME,
@@ -31,7 +33,7 @@ export const getCloudSigature = async () => {
     return {timestamp, signature}
 }
 
-// create product
+/////////// CREATE PRODUCT
 
 export const createProduct = async (info: info) => {
     console.log({ info });
@@ -61,8 +63,8 @@ export const createProduct = async (info: info) => {
     const productId = product.id;
   
     function bulletPointsCreate() {
-      info.bulletPoints.map((item: string) => {
-        createBullet(item);
+      info.bulletPoints.map((item: BulletPoints) => {
+        createBullet(item.content);
       });
     }
     bulletPointsCreate();
@@ -132,9 +134,66 @@ export const fetchProducts = async (userId: string | undefined, pageNo:number, p
 
 export const removeImageFromCloud = async (publicId: string) => {  
   await cloudinary.uploader.destroy(publicId);
-};  ///quem é pucblicId???
+};  
 
 
+///// FETCH PRODUCT INFO
+
+export const fetchProductInfo = async (productId: string): Promise<string> => {
+  await startDb()
+
+  const validProduct = await prisma.product.findUnique({
+      where: {
+          id:productId
+      }
+  });
+  
+  if(!validProduct) return redirect ('/404')         
+
+  const product = await prisma.product.findUnique({       
+          where: {
+             id:productId
+          },
+          select: {
+              id: true,
+              title: true,
+              quantity: true,
+              price: true,
+              description: true,
+              category: true,
+              bulletPoints: true,
+              thumbnails: true,
+              images: true
+          }
+      })  
+
+      const prod = product?.price
+      const str = JSON.stringify(prod)
+      const obj = JSON.parse(str)
+
+      const finalProduct : ProductResponse  = {
+          id: product?.id.toString() ?? "",
+          title: product?.title ?? "",
+          description: product?.description ?? "",
+          quantity: product?.quantity ?? 0,
+          price: { base: obj.base, discounted: obj.discounted },
+          bulletPoints: product?.bulletPoints,
+          images: product?.images.map(({ url, id, publicId}) => {
+              return { url, id, publicId }
+          }),
+          thumbnail: product?.thumbnails,
+          category: product?.category ?? "",
+          userId: '',
+          mrp: 0,
+          salePrice: 0
+      }
+      return JSON.stringify(finalProduct)
+  }   
+
+
+
+//remove image from cloud and from MongoDB (update no sentido de deixar cloudinary igual ao MongoDB)
+// pq imageId: string e não publicId???** 
 export const removeAndUpdateProductImage = async (productId: string, imageId: string, imageIdMongo: string) => {
   const { result } = await cloudinary.uploader.destroy(imageId);
   console.log({result})
@@ -150,22 +209,121 @@ export const removeAndUpdateProductImage = async (productId: string, imageId: st
           productId,
         },
       });
-
-      // If you want to remove the image from the product's 'images' relation as well:
-      await prisma.product.update({
-        where: {
-          id: productId,
-        },
-        data: {
-          images: {
-            disconnect: {
-              id: imageIdMongo,
-            },
-          },
-        },
-      });
     } catch (error) {
       console.error('Error removing/updating product image:', error);
     } 
   }
 };
+
+////REMOVE BULLETPOINT FROM DB
+
+
+
+/* export const deleteBulletPoint = 
+async (bulletPointToRemove: { content: string; id: string; productId: string }) => {
+
+  try {
+    await startDb();
+    await prisma.bulletPoint.delete({
+      where: { id: bulletPointToRemove.id }
+    });
+  } catch (error) {
+    console.log(error);
+  }
+
+}; */
+
+export const deleteBulletPoint = 
+async (bulletPointToRemove: {content:string; id:string; productId:string}) => {
+  try {
+    await startDb();
+
+    console.log("ID BULLET =====>", bulletPointToRemove.id)
+    
+    const bulletPoint = await prisma.bulletPoint.findUnique({
+      where: {id: bulletPointToRemove.id}
+     
+    })
+     console.log(bulletPointToRemove.id)
+    if (bulletPoint) {
+      await prisma.bulletPoint.delete({
+        where: { id: bulletPointToRemove.id }
+      });
+    } else {
+      console.error('Bullet point not found.');
+    }
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+
+
+///////////////////// UPDATE PRODUCT
+
+export const updateProduct= async (productId: string, dataToUpdate: ProductDataToUpdate)=> {
+
+  console.log("This is product to Update ====>",{productId, dataToUpdate})
+
+   const prodsUpdt = {
+    title: dataToUpdate.title,
+    description: dataToUpdate.description,
+    category: dataToUpdate.category,
+    quantity: dataToUpdate.quantity,
+    price: dataToUpdate.price,   
+   }
+     
+   const product = await prisma.product.update({
+    where:{id:productId},
+    data:{...prodsUpdt}
+   });
+  
+  if(dataToUpdate.thumbnail){
+    const thumbnailUpdt = await prisma.thumbnail.update({
+     where:{id:dataToUpdate.thumbnailId},
+     data:{
+      ...dataToUpdate.thumbnail
+     }
+    });      
+    
+    // posso construir uma const imagesUpdt??
+    if(dataToUpdate.images) {
+      const imagesUpdt = dataToUpdate.images.map (async (item: image) =>{
+        await prisma.image.create({
+          data: {
+            publicId: item.publicId,
+            url: item.url,
+            product: {connect: {id: productId}}
+          }          
+        })
+      })      
+    }    
+
+   // updateBulletpoints  
+   if(dataToUpdate.bulletPoints) {
+     console.log("ITEM+++++++++++>>>>", dataToUpdate.bulletPoints)
+    dataToUpdate.bulletPoints.map(async (item: BulletPoints) => {     
+      try {
+        if (item.id) {
+          // If bullet point already exists, update it
+          await prisma.bulletPoint.update({
+            where: { id: item.id },
+            data: {content: item.content },
+          });
+        } else {
+          // If bullet point doesn't exist, create a new one
+          await prisma.bulletPoint.create({
+            data: {
+              content: item.content,
+              product: { connect: { id: productId } },
+            },
+          });
+        }
+      } catch (error) {
+        console.error("This error UPDATEBULLET====>",error);
+      }
+    });
+    }
+   }
+
+  };
