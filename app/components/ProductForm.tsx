@@ -15,7 +15,7 @@ import React, {
 import { PlusIcon, TrashIcon } from "@heroicons/react/24/outline";
 import categories from "@/app/utils/categories";
 import ImageSelector from "./ImageSelector";
-import { NewProductInfo } from "../types";
+import { BulletPoints, NewProductInfo } from "../types";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../api/auth/[...nextauth]/route";
 import { useSession } from "next-auth/react";
@@ -26,7 +26,7 @@ interface Props {
   initialValue?: InitialValue;
   onSubmit(values: NewProductInfo): void;
   onImageRemove?(source: string, index: number): void;
-  onBulletPointRemove?(value: any): void;
+  onBulletPointRemove?(value: BulletPoints): void;
 
 }
 
@@ -36,7 +36,7 @@ export interface InitialValue {
   description: string;
   thumbnail: string;
   images?: string[];
-  bulletPoints: any[]; ///ANY*****
+  bulletPoints: BulletPoints[];
   mrp: number;
   salePrice: number;
   price:{
@@ -108,7 +108,7 @@ export default function ProductForm(props: Props) {
   };
 
 
-  const removeBulletPoint = (indexToRemove: number, field: any) => {
+  const removeBulletPoint = (indexToRemove: number, field: BulletPoints) => {
     const points = [...productInfo.bulletPoints];
     const filteredPoints = points.filter((_, index) => index !== indexToRemove);
     setProductInfo({

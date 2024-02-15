@@ -16,7 +16,7 @@ export default function UpdateProduct({product}:Props) {
     let img: string[] = []
     let bulletPoint: BulletPoints[] = [];
 
-    product?.images?.map((item: { url: string; id:string }) => {
+    product?.images?.map((item: { url: string; id: string }) => {
         const url = item.url;
         img.push(url);
     });
@@ -90,15 +90,16 @@ export default function UpdateProduct({product}:Props) {
         await removeImageFromCloud(publicIdOld);
 
         const { publicId, url } = await uploadImage(thumbnail)
-        dataToUpdate.thumbnail = {publicId, url}             
+        dataToUpdate.thumbnail = {publicId, url}
+      }
 
         if(imagesFiles.length) {
           const uploadPromise = imagesFiles.map(async(imgFile:File) => {
             return await uploadImage(imgFile)
           })
           dataToUpdate.images = await Promise.all(uploadPromise)         
-        } 
-      }      
+      }
+            
       updateProduct(product.id, dataToUpdate)
       console.log({dataToUpdate})   
       

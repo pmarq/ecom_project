@@ -11,12 +11,13 @@ import {
   Button,
 } from "@material-tailwind/react";
 import truncate from "truncate";
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import Link from "next/link";
 import SearchForm from "./SearchForm";
 import { useSession } from "next-auth/react";
 import { useState } from "react";
 import { fetchProducts } from "../(admin)/products/action";
+
 
 export interface Product {
   id: string;
@@ -69,22 +70,37 @@ interface Prods {
   id: string;
 }
 
+let hasMore: boolean;
+
 export default function ProductTable(props: Props) {
   const router = useRouter();
-  const {    
-    currentPageNo,
-    hasMore,
-    showPageNavigator = true,
-  } = props;
+  const {currentPageNo, showPageNavigator = true} = props;
 
   const [sttProds, setProds] = useState<Prods[]>([]);
   const [sttProdsFirstTime, setProdsFirstTime] = useState<boolean>(true);
 
+  const productsPerPage = 10;
+
   async function getProducts() {
     const session = useSession();
     const userId = session.data?.user.id;
-    const allProds = await fetchProducts(userId, 1, 1);
+
+    if (isNaN(+currentPageNo)) return redirect("/404"); 
+
+    const allProds = await fetchProducts(userId, +currentPageNo, productsPerPage);
     console.log({allProds})
+
+
+    if(allProds.length < productsPerPage) {
+      hasMore = false; 
+    } else hasMore = true
+
+    const prod1id = allProds[0]?.id
+    const prod2id = sttProds[0]?.id
+
+    if (prod1id != prod2id) {
+      setProds(allProds);
+    }
 
     if (allProds && sttProdsFirstTime) {
       setProds(allProds), setProdsFirstTime(false);

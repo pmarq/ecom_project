@@ -7,6 +7,7 @@ import {v2 as cloudinary} from "cloudinary"
 import { redirect } from "next/navigation"
 
 
+
 cloudinary.config({
     cloud_name: process.env.CLOUD_NAME,
     api_key: process.env.CLOUD_API_KEY,
@@ -191,7 +192,6 @@ export const fetchProductInfo = async (productId: string): Promise<string> => {
   }   
 
 
-
 //remove image from cloud and from MongoDB (update no sentido de deixar cloudinary igual ao MongoDB)
 // pq imageId: string e não publicId???** 
 export const removeAndUpdateProductImage = async (productId: string, imageId: string, imageIdMongo: string) => {
@@ -216,22 +216,6 @@ export const removeAndUpdateProductImage = async (productId: string, imageId: st
 };
 
 ////REMOVE BULLETPOINT FROM DB
-
-
-
-/* export const deleteBulletPoint = 
-async (bulletPointToRemove: { content: string; id: string; productId: string }) => {
-
-  try {
-    await startDb();
-    await prisma.bulletPoint.delete({
-      where: { id: bulletPointToRemove.id }
-    });
-  } catch (error) {
-    console.log(error);
-  }
-
-}; */
 
 export const deleteBulletPoint = 
 async (bulletPointToRemove: {content:string; id:string; productId:string}) => {
@@ -261,7 +245,7 @@ async (bulletPointToRemove: {content:string; id:string; productId:string}) => {
 
 ///////////////////// UPDATE PRODUCT
 
-export const updateProduct= async (productId: string, dataToUpdate: ProductDataToUpdate)=> {
+export const updateProduct = async (productId: string, dataToUpdate: ProductDataToUpdate) => {
 
   console.log("This is product to Update ====>",{productId, dataToUpdate})
 
@@ -271,24 +255,25 @@ export const updateProduct= async (productId: string, dataToUpdate: ProductDataT
     category: dataToUpdate.category,
     quantity: dataToUpdate.quantity,
     price: dataToUpdate.price,   
-   }
+   };
      
    const product = await prisma.product.update({
     where:{id:productId},
     data:{...prodsUpdt}
    });
   
-  if(dataToUpdate.thumbnail){
+  if(dataToUpdate.thumbnail) {
     const thumbnailUpdt = await prisma.thumbnail.update({
      where:{id:dataToUpdate.thumbnailId},
      data:{
       ...dataToUpdate.thumbnail
      }
-    });      
+    });     
+  } 
     
     // posso construir uma const imagesUpdt??
     if(dataToUpdate.images) {
-      const imagesUpdt = dataToUpdate.images.map (async (item: image) =>{
+      const imagesUpdt = dataToUpdate.images.map(async (item: image) =>{
         await prisma.image.create({
           data: {
             publicId: item.publicId,
@@ -325,5 +310,5 @@ export const updateProduct= async (productId: string, dataToUpdate: ProductDataT
     });
     }
    }
-
-  };
+  
+  

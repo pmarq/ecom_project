@@ -57,7 +57,7 @@ export interface SessionUserProfile {
     userId: string | undefined;   
     title: string;
     description: string;
-    bulletPoints: string[];
+    bulletPoints: BulletPoints[];
     mrp: number;
     salePrice: number;
     category: string;
@@ -69,7 +69,7 @@ export interface SessionUserProfile {
  export interface info {
     title: string;
     description: string;
-    bulletPoints: string[];
+    bulletPoints: BulletPoints[];
     mrp: number;
     salePrice: number;
     category: string;
@@ -118,4 +118,25 @@ export interface SessionUserProfile {
     quantity: number;
     thumbnail?: { url: string; id: string }[] | undefined;
     images?: { url: string; id: string }[];
+  }
+
+  export interface BulletPoints{
+    id:string, 
+    content:string,
+    productId:string
+  }
+
+  export interface ProductDataToUpdate{
+    title:string,
+    description:string,
+    bulletPoints:BulletPoints[],
+    category: string,
+    quantity: number,
+    price: {
+      base: number,
+      discounted: number,
+    },
+    thumbnailId: string,
+    thumbnail?: image,
+    images?:image[]
   }
