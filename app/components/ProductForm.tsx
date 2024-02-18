@@ -179,7 +179,7 @@ export default function ProductForm(props: Props) {
       const salePriceRaw = initialValue?.price?.discounted && initialValue?.price?.discounted*100
       const mrp = String(mrpRaw)??"0";
       const salePrice = String(salePriceRaw)??"0"
-      setValue({mrp, salePrice});   // O erro está aqui! 
+      setValue({mrp, salePrice});   
       setProductInfo({ ...initialValue });
       setThumbnailSource([initialValue.thumbnail]);
       setProductImagesSource(initialValue.images);

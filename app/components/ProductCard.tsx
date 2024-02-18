@@ -38,7 +38,7 @@ export default function ProductCard({ product }: Props) {
         >
           <Image src={product.thumbnail} alt={product.title} fill />
           <div className="absolute right-0 p-2">
-            <Chip color="red" value={`${product.sale}% off`} />
+            <Chip color="red" value={`${(product.sale*100).toFixed(0)}% off`} />
           </div>
         </CardHeader>
         <CardBody>
