@@ -40,10 +40,10 @@ const fetchProduct = async (productId: string) => {
         title: product.title,
         description: product.description,
         category: product.category,
-        thumbnail: product.thumbnails,
+        thumbnail: product.thumbnails[0].url,
         price: product.price,
         sale: product.sale,
-        images:product.images?.map((image) => image.publicId),
+        images:product.images?.map((image) => image.url),
         points: product.bulletPoints?.map((point) => point.content)
       })
    

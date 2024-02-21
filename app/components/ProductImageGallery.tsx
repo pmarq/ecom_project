@@ -1,36 +1,67 @@
 "use client";
-
-import { IconButton } from "@material-tailwind/react";
-import { PlusSmallIcon, MinusSmallIcon } from "@heroicons/react/24/outline";
+import Image from "next/image";
+import React, { useRef, useState } from "react";
+import Slider, { Settings } from "react-slick";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
 
 interface Props {
-  value: number;
-  onDecrement?(): void;
-  onIncrement?(): void;
-  disabled?: boolean;
+  images: string[];
 }
 
-const CartCountUpdater = ({
-  onDecrement,
-  onIncrement,
-  disabled,
-  value,
-}: Props) => {
-  return (
-    <div
-      style={{ opacity: disabled ? "0.5" : "1" }}
-      className="flex items-center space-x-2"
-    >
-      <IconButton disabled={disabled} onClick={onDecrement} variant="text">
-        <MinusSmallIcon className="w-4 h-4" />
-      </IconButton>
-
-      <span className="text-lg font-medium">{value}</span>
-      <IconButton disabled={disabled} onClick={onIncrement} variant="text">
-        <PlusSmallIcon className="w-4 h-4" />
-      </IconButton>
-    </div>
-  );
+const settings: Settings = {
+  dots: false,
+  lazyLoad: "anticipated",
+  infinite: true,
+  speed: 100,
+  slidesToShow: 1,
+  slidesToScroll: 1,
+  arrows: false,
+  autoplay: false,
+  className: "w-[500px]",
 };
 
-export default CartCountUpdater;
+export default function ProductImageGallery(props: Props) {
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const { images } = props;
+  const slider = useRef<Slider>(null);
+
+  return (
+    <div>
+      <Slider
+        {...settings}
+        afterChange={(currentSlide) => {
+          setCurrentSlide(currentSlide);
+        }}
+        ref={slider}
+      >
+        {images.map((img, index) => {
+          return (
+            <Image
+              key={index}
+              src={img}
+              alt="testing"
+              width={500}
+              height={500}
+            />
+          );
+        })}
+      </Slider>
+      <div className="flex py-2 space-x-2">
+        {images.map((img, index) => {
+          return (
+            <Image
+              onClick={() => slider.current?.slickGoTo(index)}
+              className={index === currentSlide ? "ring ring-blue-500" : ""}
+              key={index}
+              src={img}
+              alt="testing"
+              width={80}
+              height={80}
+            />
+          );
+        })}
+      </div>
+    </div>
+  );
+}

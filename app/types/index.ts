@@ -140,3 +140,8 @@ export interface SessionUserProfile {
     thumbnail?: image,
     images?:image[]
   }
+
+  export interface NewCartRequest {   
+    productId: string;
+    quantity: number   
+  }
