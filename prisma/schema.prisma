@@ -11,16 +11,16 @@ datasource db {
 }
 
 model User {
-  id            String        @id @default(auto()) @map("_id") @db.ObjectId
+  id            String         @id @default(auto()) @map("_id") @db.ObjectId
   name          String?
-  email         String?       @unique
-  emailVerified Boolean       @default(false)
+  email         String?        @unique
+  emailVerified Boolean        @default(false)
   image         String?
   password      String?
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
-  favoriteIds   String[]      @db.ObjectId
-  cartDocument  CartDocumet[] @relation("CartDocumenttoUser")
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  favoriteIds   String[]       @db.ObjectId
+  cartDocument  CartDocument[] @relation("CartDocumenttoUser")
 
   activateTokens      ActivateToken[]
   activateResetTokens ActivateResetToken[]
@@ -122,15 +122,15 @@ model BulletPoint {
 }
 
 model CartItem {
-  id            String       @id @default(auto()) @map("_id") @db.ObjectId
+  id            String        @id @default(auto()) @map("_id") @db.ObjectId
   quantity      Int
-  productId     String       @db.ObjectId
-  product       Product      @relation("CartItemtoProduct", fields: [productId], references: [id])
-  CartDocumet   CartDocumet? @relation("CartDocumenttoCartItem", fields: [cartDocumetId], references: [id])
-  cartDocumetId String?      @db.ObjectId
+  productId     String        @db.ObjectId
+  product       Product       @relation("CartItemtoProduct", fields: [productId], references: [id])
+  cartDocument  CartDocument? @relation("CartDocumenttoCartItem", fields: [cartDocumetId], references: [id])
+  cartDocumetId String?       @db.ObjectId
 }
 
-model CartDocumet {
+model CartDocument {
   id        String     @id @default(auto()) @map("_id") @db.ObjectId
   userId    String     @db.ObjectId
   createdAt DateTime   @default(now())

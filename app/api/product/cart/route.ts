@@ -18,7 +18,7 @@ export const POST = async (req: Request) => {
        
         await startDb()
 
-        const cart = await prisma.cartDocumet.findUnique({
+        const cart = await prisma.cartDocument.findUnique({
             where:{
                 id: user.id
             },
@@ -28,7 +28,7 @@ export const POST = async (req: Request) => {
         })
         if(!cart){
             // create new cart if there is no cart
-            await prisma.cartDocumet.create({
+            await prisma.cartDocument.create({
                 data:{
                     id: user.id,
                     userId: user.id,
@@ -78,13 +78,18 @@ export const POST = async (req: Request) => {
                             id: productId
                         }
                     },
-                    cartDocumet: {
+                    cartDocument: {
                         connect: {
                             id: cart.id
                         }
                     }
                 }
             });
+            return NextResponse.json({ success: true });
         }
-        
-        return NextResponse.json({ success: true });
+    } catch (error) {
+        // Handle any errors that occurred within the try block
+        console.error("An error occurred:", error);
+        return NextResponse.json({ error: "An error occurred" }, { status: 500 });
+    }
+};
