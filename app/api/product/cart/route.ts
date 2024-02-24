@@ -13,7 +13,7 @@ export const POST = async (req: Request) => {
         if(!user) return NextResponse.json({error: "User not authenticated!"}, {status: 401})
 
         const {productId, quantity} = await req.json() as NewCartRequest
-        if(!productId || !isNaN(quantity)) 
+        if(!productId || isNaN(quantity)) 
         return NextResponse.json({error: "Invalid request, product id or quantity missing!"}, {status: 401})
        
         await startDb()
@@ -67,6 +67,7 @@ export const POST = async (req: Request) => {
                         quantity: existingItem.quantity
                     }
                 });
+                return NextResponse.json({ success: true });
             }
         } else {
             // add new item if it doesn't exist

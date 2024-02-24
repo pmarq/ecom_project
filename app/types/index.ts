@@ -145,3 +145,16 @@ export interface SessionUserProfile {
     productId: string;
     quantity: number   
   }
+
+  export interface NewFeaturedProduct {
+    featuredProductId: string;
+    productId: string;
+    banner: {
+      url: string;
+      id: string;
+      publicId: string;
+    };
+    link: string;
+    linkTitle: string;
+    title: string;
+  }
