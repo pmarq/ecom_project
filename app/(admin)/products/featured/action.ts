@@ -2,7 +2,7 @@ import { startDb } from "@/app/lib/db";
 import { NewFeaturedProduct } from "@/app/types";
 import prisma from "@/prisma";
 
-export const creatFeaturedProduct = async (info: NewFeaturedProduct) => {
+export const createFeaturedProduct = async (info: NewFeaturedProduct) => {
     try {
         await startDb();       
         const defaultValues = {
@@ -24,8 +24,8 @@ export const creatFeaturedProduct = async (info: NewFeaturedProduct) => {
         
         await prisma.bannerFeaturedProduct.create({
             data: {              
-              publicId: info.featuredProductId.publicId,
-              url: info.featuredProductId.url,
+              publicId: info.featuredProduct.publicId,
+              url: info.featuredProduct.url,
               featuredProduct: { connect: { id: featuredProductId } },
             },
           });

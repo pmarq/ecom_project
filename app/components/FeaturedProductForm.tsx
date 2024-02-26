@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import React, { ChangeEventHandler, useEffect, useState, useTransition } from "react";
 import * as Yup from "yup";
 import { uploadImage } from "../utils/helper";
+import { createFeaturedProduct } from "../(admin)/products/featured/action";
+import { Underdog } from "next/font/google";
 
 export interface FeaturedProduct {
   file?: File;
@@ -63,7 +65,7 @@ const defaultProduct = {
 };
 
 export default function FeaturedProductForm({ initialValue }: Props) {
-    const[isPending, startTransition] = useTransition();
+  const[isPending, startTransition] = useTransition();
   const [isForUpdate, setIsForUpdate] = useState(false);
   const [featuredProduct, setFeaturedProduct] =
     useState<FeaturedProduct>(defaultProduct);
@@ -78,6 +80,17 @@ export default function FeaturedProductForm({ initialValue }: Props) {
   };
 
   const handleCreate = async (info: any) => {
+    try {
+        if(featuredProduct.file != undefined) {
+        const banner = await uploadImage(featuredProduct.file)
+        console.log({banner})
+        await createFeaturedProduct({banner, link, linkTitle, title}) 
+        }
+      
+        
+    } catch (error) {
+        
+    }
       
   }
 
