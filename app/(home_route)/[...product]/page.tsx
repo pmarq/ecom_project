@@ -1,52 +1,11 @@
 import ProductView from "@/app/components/ProductView"
-import { startDb } from "@/app/lib/db"
-import prisma from "@/prisma"
-import { redirect } from "next/navigation"
 import React from "react"
+import { fetchProduct } from "./action"
 
 interface Props {
     params: {
         product: string[]
     }
-}
-
-const fetchProduct = async (productId: string) => {
-    if(!productId) return redirect ('/404')
-
-    await startDb()
-
-    const product = await prisma.product.findUnique({
-        where: {
-            id: productId
-        },
-        select: {
-            thumbnails: true,
-            price: true,
-            quantity: true,
-            description:true,
-            category: true,
-            title: true,
-            id: true,
-            sale: true,
-            bulletPoints: true,
-            createdAt: true,
-            images: true
-          },      
-    })
-    if(!product) return redirect ('/404')
-    
-    return JSON.stringify({
-        id: product.id.toString(),
-        title: product.title,
-        description: product.description,
-        category: product.category,
-        thumbnail: product.thumbnails[0].url,
-        price: product.price,
-        sale: product.sale,
-        images:product.images?.map((image) => image.url),
-        points: product.bulletPoints?.map((point) => point.content)
-      })
-   
 }
 
 export default async function Product({params}: Props) {

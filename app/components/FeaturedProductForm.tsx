@@ -2,12 +2,20 @@
 
 import { Button, Input } from "@material-tailwind/react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
-import React, { ChangeEventHandler, useEffect, useState, useTransition } from "react";
+import React, {
+  ChangeEventHandler,
+  useEffect,
+  useState,
+  useTransition,
+} from "react";
 import * as Yup from "yup";
 import { uploadImage } from "../utils/helper";
-import { createFeaturedProduct } from "../(admin)/products/featured/action";
-import { Underdog } from "next/font/google";
+import { createFeaturedProduct, updateFeaturedProduct } from "../(admin)/products/featured/action";
+import { toast } from "react-toastify";
+import { FeaturedProductForUpdate } from "../types";
+import { removeImageFromCloud } from "../(admin)/products/action";
+
+
 
 export interface FeaturedProduct {
   file?: File;
@@ -65,7 +73,7 @@ const defaultProduct = {
 };
 
 export default function FeaturedProductForm({ initialValue }: Props) {
-  const[isPending, startTransition] = useTransition();
+  const [isPending, startTransition] = useTransition();
   const [isForUpdate, setIsForUpdate] = useState(false);
   const [featuredProduct, setFeaturedProduct] =
     useState<FeaturedProduct>(defaultProduct);
@@ -79,37 +87,70 @@ export default function FeaturedProductForm({ initialValue }: Props) {
     } else setFeaturedProduct({ ...featuredProduct, [name]: value });
   };
 
-  const handleCreate = async (info: any) => {
+  const handleCreate = async () => {
     try {
-        if(featuredProduct.file != undefined) {
-        const banner = await uploadImage(featuredProduct.file)
-        console.log({banner})
-        await createFeaturedProduct({banner, link, linkTitle, title}) 
-        }
-      
+       const { link, linkTitle, title, file } = 
+        await newFeaturedProductValidationSchema.validate(
+            {...featuredProduct}, 
+            { abortEarly: false });
+      if (featuredProduct.file != undefined) {
+        const banner = await uploadImage(featuredProduct.file);
+        console.log({ banner });
+        await createFeaturedProduct({ banner, link, linkTitle, title });
         
+      }
     } catch (error) {
-        
+        if(error instanceof Yup.ValidationError) {
+            error.inner.map((err) => {
+                toast.error(err.message)
+            })
+        }
     }
-      
-  }
+  };
 
   const handleUpdate = async () => {
     try {
-        const banner = await uploadImage(file)
-        await createFeaturedProduct({banner, link, linkTitle, title})
-        
+        const { link, linkTitle, title, file } = 
+        await oldFeaturedProductValidationSchema.validate(
+            {...featuredProduct}, 
+            { abortEarly: false });
+
+      const data: FeaturedProductForUpdate = {
+          link,
+          linkTitle,
+          title
+      }  
+
+      console.log("bannerFile====>", file)
+      console.log("bannerOld", initialValue.banner)   
+
+      const source = initialValue.banner
+      const splittedData = source.split("/")
+      console.log("Data BannrtOld",splittedData)
+      const lastItem = splittedData[splittedData.length -1];
+      const publicIdOld = lastItem.split(".")[0]; 
+      await removeImageFromCloud(publicIdOld);
+
+      if (featuredProduct.file != undefined) {
+
+        const banner = await uploadImage(featuredProduct.file)
+        data.banner = banner
+    } 
+    await updateFeaturedProduct(initialValue.id, data);    
+
     } catch (error) {
-        
+        if(error instanceof Yup.ValidationError) {
+            error.inner.map((err) => {
+                toast.error(err.message)                
+            })
+        }
     }
-      
-  }
+  };
 
   const handleSubmit = async () => {
-    if (isForUpdate) await handleUpdate()
-    else await handleCreate()
-      
-  }
+    if (isForUpdate) await handleUpdate();
+    else await handleCreate();
+  };
 
   useEffect(() => {
     if (initialValue) {
@@ -125,7 +166,10 @@ export default function FeaturedProductForm({ initialValue }: Props) {
   const { link, linkTitle, title } = featuredProduct;
 
   return (
-    <form action={() => startTransition( async () =>await handleSubmit())} className="py-4 space-y-4">
+    <form
+      action={() => startTransition(async () => await handleSubmit())}
+      className="py-4 space-y-4"
+    >
       <label htmlFor="banner-file">
         <input
           type="file"
@@ -146,17 +190,31 @@ export default function FeaturedProductForm({ initialValue }: Props) {
           )}
         </div>
       </label>
-      <Input label="Title" name="title" value={title} onChange={handleChange} crossOrigin={undefined} />
+      <Input
+        label="Title"
+        name="title"
+        value={title}
+        onChange={handleChange}
+        crossOrigin={undefined}
+      />
       <div className="flex space-x-4">
-        <Input label="Link" name="link" value={link} onChange={handleChange} crossOrigin={undefined} />
         <Input
-                  label="Lik Title"
-                  name="linkTitle"
-                  value={linkTitle}
-                  onChange={handleChange} crossOrigin={undefined}        />
+          label="Link"
+          name="link"
+          value={link}
+          onChange={handleChange}
+          crossOrigin={undefined}
+        />
+        <Input
+          label="Link Title"
+          name="linkTitle"
+          value={linkTitle}
+          onChange={handleChange}
+          crossOrigin={undefined}
+        />
       </div>
       <div className="text-right">
-        <Button type="submit">{isForUpdate ? "Update" : "Submit"}</Button>
+        <Button disabled={isPending} type="submit">{isForUpdate ? "Update" : "Submit"}</Button>
       </div>
     </form>
   );

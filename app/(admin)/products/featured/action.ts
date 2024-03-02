@@ -1,38 +1,84 @@
+"use server"
+
 import { startDb } from "@/app/lib/db";
-import { NewFeaturedProduct } from "@/app/types";
+import { FeaturedProductForUpdate, NewFeaturedProduct } from "@/app/types";
 import prisma from "@/prisma";
+import { removeImageFromCloud } from "../action";
 
 export const createFeaturedProduct = async (info: NewFeaturedProduct) => {
+    console.log({ info });
     try {
-        await startDb();       
-        const defaultValues = {
-            banner : info.banner,
-            link: info.link,
-            linkTitle : info.linkTitle,
-            title : info.title
-        }
-       const featuredProduct = await prisma.featuredProduct.create({
-            data:{
-                ...defaultValues,
-                product: {
-                    connect: { id: info.productId }
-                }
-            }
-        })
-
-        const featuredProductId = featuredProduct.id
-        
-        await prisma.bannerFeaturedProduct.create({
-            data: {              
-              publicId: info.featuredProduct.publicId,
-              url: info.featuredProduct.url,
-              featuredProduct: { connect: { id: featuredProductId } },
-            },
-          });
-
-        
+      await startDb();
+      const defaultValues = {
+        url: info.banner.url,
+        publicId: info.banner.publicId,
+        link: info.link,
+        linkTitle: info.linkTitle,
+        title: info.title,
+      };
+      const featuredProduct = await prisma.featuredProduct.create({
+        data: {
+          ...defaultValues,
+        },
+      });
+      console.log({ featuredProduct });
     } catch (error) {
-        
+      console.error(error);
     }
-  
-};
+  };
+
+  export const updateFeaturedProduct = async (id: string, dataToUpdate: FeaturedProductForUpdate) => {
+    console.log("DataToUpdate ======>>>>>",{ dataToUpdate });
+    try {
+      await startDb();
+      const featuredProductUpd = {        
+        link: dataToUpdate.link,
+        linkTitle: dataToUpdate.linkTitle,
+        title: dataToUpdate.title,
+        banner: dataToUpdate.banner,
+      };   
+      const featuredProductForUpdate = await prisma.featuredProduct.update({
+        where: {
+          id: id,
+        },
+        data: {
+          ...featuredProductUpd,
+        }
+      });     
+    
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  export const fetchFeaturedProduct = async () => {
+    try {
+      await startDb();
+      const featuredProducts = await prisma.featuredProduct.findMany({
+        orderBy: {
+          createdAt: "desc",
+        },
+        select: {
+          id: true,
+          url: true,
+          publicId: true,
+          link: true,
+          linkTitle: true,
+          title: true,
+          createdAt: true
+        }
+    });
+      return featuredProducts.map((featuredProduct) => {
+        return {
+          id: featuredProduct.id.toString(),
+          link: featuredProduct.link,
+          linkTitle: featuredProduct.linkTitle,
+          title: featuredProduct.title,
+          banner: featuredProduct.url,
+         }
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
