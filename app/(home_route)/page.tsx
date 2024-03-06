@@ -3,6 +3,8 @@ import { startDb } from '../lib/db'
 import prisma from '@/prisma'
 import GridView from '../components/GridView'
 import ProductCard from '../components/ProductCard'
+import FeaturedProductsSlider from '../components/FeaturedProducstSlider'
+import HorizontalMenu from '../components/HorizontalMenu'
 
 //como colocar uma quantidade (dentro do product table eu posso passar o fetch?? igual aqui?)
 
@@ -55,6 +57,32 @@ const fetchLatestProducts = async () => {
   });
 }  
 
+const fetchFeaturedProduct  = async () => {
+  await startDb();
+  const featuredProducts = await prisma.featuredProduct.findMany({
+    orderBy: {
+      createdAt: "desc",
+    },
+    select: {
+      id: true,
+      link: true,
+      linkTitle: true,
+      title: true,
+      createdAt: true,
+      url: true,
+    }      
+  })
+  return featuredProducts.map((featuredProducts) =>{
+    return {
+      id: featuredProducts.id.toString(),
+      title: featuredProducts.title,
+      link: featuredProducts.link,
+      linkTitle: featuredProducts.linkTitle,
+      banner: featuredProducts.url       
+    }
+  });
+}
+
 let newArr: Props[] = [] 
 
 export default async function Home() {
@@ -72,20 +100,26 @@ export default async function Home() {
       category: item?.category ?? "",
       thumbnail: item?.thumbnail[0].url,
       price: { base: obj.base, discounted: obj.discounted },
-      sale: item.sale,
+      sale: item.sale      
     };
 
     newArr.push(newProdObj)    
 
   });
 
+  const featuredProducts = await fetchFeaturedProduct();
+
 
   return (
-    <GridView>
+    <div className='py-4 space-y-4'>
+      <FeaturedProductsSlider products={featuredProducts} />
+      <HorizontalMenu />
+       <GridView>
       {newArr.map((product: Props) => {
-        return <ProductCard product={product}/>
+        return <ProductCard key={product.id} product={product}/>
       })}
     </GridView>
+    </div>   
   )
 }
 

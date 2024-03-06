@@ -5,6 +5,7 @@ import React from 'react'
 import { uploadImage } from '@/app/utils/helper'
 import { createProduct } from '../action'
 import { NewProductInfo, image } from '@/app/types'
+import { useRouter } from 'next/navigation'
 
 
 
@@ -21,6 +22,7 @@ import { NewProductInfo, image } from '@/app/types'
 
 
     export default function Create() {
+      const router = useRouter();
       let thumbnailObj: image;
       let imagesObj: image[];
     
@@ -62,6 +64,9 @@ import { NewProductInfo, image } from '@/app/types'
         };
     
         createProduct(newObj);
+        router.refresh();
+        router.push('/products/');
+
       };
     
       return (

@@ -5,6 +5,7 @@ import ProductForm from './ProductForm'
 import { BulletPoints, NewProductInfo, ProductDataToUpdate, ProductResponse, ProductToUpdate, image } from '../types'
 import { deleteBulletPoint, removeAndUpdateProductImage, removeImageFromCloud, updateProduct } from '../(admin)/products/action'
 import { uploadImage } from '../utils/helper'
+import { useRouter } from 'next/navigation'
 
 
 
@@ -13,6 +14,7 @@ interface Props {
 }
 
 export default function UpdateProduct({product}:Props) {   
+    const router = useRouter();
     let img: string[] = []
     let bulletPoint: BulletPoints[] = [];
 
@@ -102,6 +104,8 @@ export default function UpdateProduct({product}:Props) {
             
       updateProduct(product.id, dataToUpdate)
       console.log({dataToUpdate})   
+      router.refresh();
+      router.push('/products');
       
     } catch (error) {
       console.log("erro" + error);      

@@ -1,13 +1,15 @@
 "use client";
 import { Button, CardBody, Typography } from "@material-tailwind/react";
 import Link from "next/link";
-import React from "react";
+import React, { useTransition } from "react";
 import truncate from "truncate";
+import { deleteFeaturedProduct } from "../(admin)/products/featured/action";
+import { useRouter } from "next/navigation";
 
 const TABLE_HEAD = ["Detail", "Product", ""];
 
 interface Props {
-  products: Products[];
+  products: Products[] | undefined;
 }
 
 interface Products {
@@ -19,6 +21,14 @@ interface Products {
 }
 
 export default function FeaturedProductTable({ products }: Props) {
+const [isPending, startTransition] = useTransition();
+const router = useRouter();
+const handleDelete = async (id: string) => {    
+    await deleteFeaturedProduct(id);  
+    router.refresh();   
+  }
+
+const arrProducts = products ?? [];
   return (
     <div className="py-5">
       <CardBody className="px-0">
@@ -42,9 +52,9 @@ export default function FeaturedProductTable({ products }: Props) {
             </tr>
           </thead>
           <tbody>
-            {products.map((item, index) => {
+            {arrProducts.map((item, index) => {
               const { id, link, title } = item;
-              const isLast = index === products.length - 1;
+              const isLast = index === arrProducts.length - 1;
               const classes = isLast
                 ? "p-4"
                 : "p-4 border-b border-blue-gray-50";
@@ -81,8 +91,14 @@ export default function FeaturedProductTable({ products }: Props) {
                       >
                         Edit
                       </Link>
-                      <Button color="red" ripple={false} variant="text">
-                        Delete
+                      <Button
+                       disabled={isPending}
+                       onClick={() => {
+                        startTransition(async () => {
+                           await handleDelete(item.id)
+                         })
+                      }} color="red" ripple={false} variant="text">
+                        {isPending ? "Deleting..." : "Delete"}
                       </Button>
                     </div>
                   </td>

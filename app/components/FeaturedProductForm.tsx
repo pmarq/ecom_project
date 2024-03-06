@@ -14,6 +14,7 @@ import { createFeaturedProduct, updateFeaturedProduct } from "../(admin)/product
 import { toast } from "react-toastify";
 import { FeaturedProductForUpdate } from "../types";
 import { removeImageFromCloud } from "../(admin)/products/action";
+import { useRouter } from "next/navigation";
 
 
 
@@ -77,6 +78,7 @@ export default function FeaturedProductForm({ initialValue }: Props) {
   const [isForUpdate, setIsForUpdate] = useState(false);
   const [featuredProduct, setFeaturedProduct] =
     useState<FeaturedProduct>(defaultProduct);
+    const router = useRouter()
 
   const handleChange: ChangeEventHandler<HTMLInputElement> = ({ target }) => {
     const { name, value, files } = target;
@@ -97,6 +99,8 @@ export default function FeaturedProductForm({ initialValue }: Props) {
         const banner = await uploadImage(featuredProduct.file);
         console.log({ banner });
         await createFeaturedProduct({ banner, link, linkTitle, title });
+        router.refresh();
+        setFeaturedProduct({...defaultProduct});
         
       }
     } catch (error) {
@@ -136,7 +140,9 @@ export default function FeaturedProductForm({ initialValue }: Props) {
         const banner = await uploadImage(featuredProduct.file)
         data.banner = banner
     } 
-    await updateFeaturedProduct(initialValue.id, data);    
+    await updateFeaturedProduct(initialValue.id, data);  
+    router.refresh();
+    router.push('/products/featured/add');
 
     } catch (error) {
         if(error instanceof Yup.ValidationError) {

@@ -5,6 +5,7 @@ import { FeaturedProductForUpdate, NewFeaturedProduct } from "@/app/types";
 import prisma from "@/prisma";
 import { removeImageFromCloud } from "../action";
 
+
 export const createFeaturedProduct = async (info: NewFeaturedProduct) => {
     console.log({ info });
     try {
@@ -35,7 +36,8 @@ export const createFeaturedProduct = async (info: NewFeaturedProduct) => {
         link: dataToUpdate.link,
         linkTitle: dataToUpdate.linkTitle,
         title: dataToUpdate.title,
-        banner: dataToUpdate.banner,
+        url: dataToUpdate.banner?.url,
+        publicId: dataToUpdate.banner?.publicId
       };   
       const featuredProductForUpdate = await prisma.featuredProduct.update({
         where: {
@@ -50,6 +52,28 @@ export const createFeaturedProduct = async (info: NewFeaturedProduct) => {
       console.error(error);
     }
   };
+
+  export const deleteFeaturedProduct = async (id: string) => {
+    try {
+      await startDb();
+      const featuredProduct = await prisma.featuredProduct.findUnique({
+        where: {
+          id: id,
+        }
+      })
+      if(featuredProduct){
+        removeImageFromCloud(featuredProduct.publicId);
+      }      
+      const featuredProductToDelete = await prisma.featuredProduct.delete({
+        where: {
+          id: id,
+        }
+      })
+    } catch (error) {
+      console.error(error);
+    }
+      
+  }
 
   export const fetchFeaturedProduct = async () => {
     try {
