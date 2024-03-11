@@ -35,6 +35,7 @@ export interface SessionUserProfile {
         id: string,
         name: string,
         email: string,
+        image?: {url: string; id: string; publicId: string} | null,
         role: "USER" | "ADMIN"
         emailVerified: boolean
  }

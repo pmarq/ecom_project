@@ -38,6 +38,7 @@ export default function BuyingOptions() {
       toast.error(error);
        return; // Ensure the function returns void here
   }
+  router.refresh()
 }
 
   return (

@@ -95,7 +95,7 @@ export default async function ProductByCategory({params}: Props) {
     <div className='py-4 space-y-4'>   
       <HorizontalMenu/>
      {parsedProducts.length?  <GridView>
-      {parsedProducts.map((product: LatestProducts) => {
+      {newArr.map((product: LatestProducts) => {
         return <ProductCard key={product.id} product={product}/>
       })}
     </GridView>: <h1 className='text-center pt-10 font-semibold text-2xl opacity-40'>

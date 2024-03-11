@@ -39,7 +39,7 @@ export default function FeaturedProductsSlider({ products }: Props) {
   return (
     <div className="h-[380px]">
       <Slider {...settings}>
-        {products.map(({ banner, title, link, linkTitle }, index) => {
+        {products.map(({ banner, title, link, linkTitle }, index) => {         
           return (
             <div className="select-none relative" key={index}>
               <div className="w-full h-[380px]">

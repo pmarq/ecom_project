@@ -48,6 +48,7 @@ export default function ProductCard({ product }: Props) {
       toast.error(error);
        return; // Ensure the function returns void here
   }
+  router.refresh()
 }
 
   return (
