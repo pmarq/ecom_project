@@ -2,7 +2,6 @@ import React, { ReactNode } from 'react'
 import { getServerSession } from "next-auth"
 import { authOptions } from '../api/auth/[...nextauth]/route' 
 import { redirect } from 'next/navigation'
-import EmailVerificationBanner from '../components/EmailVerificationBanner'
 import Navbar from '../components/navbar'
 
 interface Props {
@@ -17,8 +16,7 @@ export default async function PrivateLayout({children}: Props) {
    
   return (
     <div className='max-w-screen-xl mx-auto p-4 xl:p-0'>
-      <Navbar/>
-      <EmailVerificationBanner />
+      <Navbar/>    
       {children}
       </div>
   )

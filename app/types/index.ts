@@ -165,3 +165,12 @@ export interface SessionUserProfile {
     linkTitle: string;
     title: string;
   }
+
+  export interface UserProfileToUpdateUpdate {
+    id: string;
+    avatar?: {
+      url: string;
+      publicId: string;
+    };
+    name: string; 
+  }

@@ -1,4 +1,5 @@
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import EmailVerificationBanner from '@/app/components/EmailVerificationBanner';
 import ProfileForm from '@/app/components/ProfileForm'
 import { startDb } from '@/app/lib/db';
 import prisma from '@/prisma';
@@ -12,27 +13,30 @@ const fetchUserProfile = async () => {
 
   console.log("SESSION===>>>",getServerSession)
   
-  await startDb();
+  await startDb(); 
 
-  const user = await prisma.user.findUnique({
+  const user = await prisma.user.findUnique({    
     where: {
       id: session.user.id      
     }
   })
+  if(!user) return redirect('/auth/signin');
   return {
-    id: user?.id.toString(),
-    name: user?.name,
-    email: user?.email,
-    avatar: user?.image?.url
+    id: user.id.toString(),
+    name: user.name,
+    email: user.email,
+    image: user.image,
+    emailVerified: user.emailVerified
   }  
 }
 
 export default async function Profile() {
-  const profile = fetchUserProfile()
+  const profile = await fetchUserProfile()
   return (
     <div>
+        <EmailVerificationBanner id={profile.id} emailVerified={profile.emailVerified}/>
       <div>
-        <ProfileForm avatar= "" name='' email='' id=''/>
+        <ProfileForm avatar= {profile.image} name={profile.name} email={profile.email} id={profile.id}/>
       </div>
     </div>
   )
