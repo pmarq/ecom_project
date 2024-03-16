@@ -15,7 +15,7 @@ export const updateUserProfile = async (info: UserProfileToUpdateUpdate) => {
             },
             data: {
                 name: info.name,
-                email: info.avatar?.url
+                image: info.avatar?.url
             }
         })    
     } catch (error) {

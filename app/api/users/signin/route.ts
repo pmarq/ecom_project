@@ -39,5 +39,6 @@ export const POST = async (req: Request) => {
             name: user.name, 
             email: user.email,
             emailVerified: user.emailVerified, 
-            role: user.role}})    
+            role: user.role        
+          }})    
     }

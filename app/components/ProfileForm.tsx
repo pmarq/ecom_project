@@ -3,10 +3,11 @@ import React, { useState, useTransition } from "react";
 import { Button, Input } from "@material-tailwind/react";
 import ProfileAvatarInput from "./ProfileAvatarInput"; 
 import { toast } from "react-toastify";
-import { uploadImage } from "../utils/helper";
+import { getPublicIdImg, uploadImage } from "../utils/helper";
 import { UserProfileToUpdateUpdate } from "../types";
 import { updateUserProfile } from "../(private_route)/profile/action";
 import { useRouter } from "next/navigation";
+import { removeImageFromCloud } from "../(admin)/products/action";
 
 interface Props {
   avatar?: string;
@@ -30,8 +31,14 @@ export default function ProfileForm({ id, name, avatar, email }: Props) {
     const info: UserProfileToUpdateUpdate = { id, name: userName };
 
     if(avatarFile) {
-      const avatar = await uploadImage(avatarFile)
-      info.avatar = avatar
+      if (avatar) {
+      const publicId = getPublicIdImg(avatar);
+      removeImageFromCloud(publicId)
+
+      const avatarToUpload = await uploadImage(avatarFile)
+      info.avatar = avatarToUpload;      
+
+      }
     }
     await updateUserProfile(info);
     router.refresh()

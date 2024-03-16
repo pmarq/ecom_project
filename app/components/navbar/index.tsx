@@ -4,7 +4,30 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { startDb } from '@/app/lib/db';
 import prisma from '@/prisma';
+import { redirect } from 'next/navigation';
 
+const fetchUserProfile = async () => {
+  const session = await getServerSession(authOptions) 
+  if(!session?.user) return null;
+
+  console.log("SESSION===>>>",getServerSession)
+  
+  await startDb(); 
+
+  const user = await prisma.user.findUnique({    
+    where: {
+      id: session.user.id      
+    }
+  })
+  if(!user) return redirect('/auth/signin');
+  return {
+    id: user.id.toString(),
+    name: user.name ?? "",
+    email: user.email ?? "",
+    image: user.image ?? "",
+    emailVerified: user.emailVerified
+  }  
+}
 
 
 const getCartItemsCount = async () => {
@@ -50,7 +73,9 @@ const getCartItemsCount = async () => {
 
 export default async function Navbar() {
   const cartItemsCount = await getCartItemsCount()
+  const profile = await fetchUserProfile()
+
   return (
-  <NavUI cartItemsCount={cartItemsCount} />
+  <NavUI cartItemsCount={cartItemsCount} avatar={profile?.image} />
   )
 }
