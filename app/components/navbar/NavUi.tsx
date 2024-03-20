@@ -15,10 +15,7 @@ import ProfileMenu from "../ProfileMenu";
 
 interface Props {
   cartItemsCount: number;
-  avatar?: {
-    url: string;
-    public_id: string;
-  }
+  avatar?: string;
 }
 
 export const menuItems = [
@@ -36,7 +33,8 @@ export const menuItems = [
 
 export default function NavUI({ cartItemsCount , avatar }: Props) {
   const [open, setOpen] = React.useState(false);
-  const { loading, loggedIn } = useAuth();
+  const { loading, loggedIn, profile } = useAuth();
+  const image = profile?.image ?? undefined
 
   React.useEffect(() => {
     const onResize = () => window.innerWidth >= 960 && setOpen(false);
@@ -58,7 +56,7 @@ export default function NavUI({ cartItemsCount , avatar }: Props) {
           <div className="hidden lg:flex gap-2 items-center">
             <CartIcon cartItems={cartItemsCount} />
             {loggedIn ? (
-              <ProfileMenu menuItems={menuItems} avatar={image.url} />
+              <ProfileMenu menuItems={menuItems}  image={avatar}/>
             ) : loading ? (
               <Spinner />
             ) : (

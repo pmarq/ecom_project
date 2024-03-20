@@ -15,8 +15,7 @@ import { useRouter } from 'next/navigation'
         const createImg = uploadImage(item);
         uploadArrayPromise.push(createImg)        
       });
-      const arrayProductImg = Promise.all(uploadArrayPromise)
-      console.log(arrayProductImg)
+      const arrayProductImg = Promise.all(uploadArrayPromise)  
       return arrayProductImg;      
     }
 

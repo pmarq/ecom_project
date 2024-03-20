@@ -11,8 +11,6 @@ import React from 'react'
 const fetchUserProfile = async () => {
   const session = await getServerSession(authOptions) 
   if(!session?.user) return redirect('/auth/signin');
-
-  console.log("SESSION===>>>",getServerSession)
   
   await startDb(); 
 
@@ -38,8 +36,8 @@ export default async function Profile() {
         <EmailVerificationBanner id={profile.id} emailVerified={profile.emailVerified}/>
         <div className="flex py-4 space-y-4">
         <div className="border-r border-gray-700 p-4 space-y-4">
-        <ProfileForm avatar= 
-        {profile.image} 
+        <ProfileForm 
+        avatar={profile.image} 
         name={profile.name} 
         email={profile.email} 
         id={profile.id}

@@ -6,8 +6,7 @@ import prisma from "@/prisma";
 import { removeImageFromCloud } from "../action";
 
 
-export const createFeaturedProduct = async (info: NewFeaturedProduct) => {
-    console.log({ info });
+export const createFeaturedProduct = async (info: NewFeaturedProduct) => { 
     try {
       await startDb();
       const defaultValues = {
@@ -21,15 +20,13 @@ export const createFeaturedProduct = async (info: NewFeaturedProduct) => {
         data: {
           ...defaultValues,
         },
-      });
-      console.log({ featuredProduct });
+      });     
     } catch (error) {
       console.error(error);
     }
   };
 
-  export const updateFeaturedProduct = async (id: string, dataToUpdate: FeaturedProductForUpdate) => {
-    console.log("DataToUpdate ======>>>>>",{ dataToUpdate });
+  export const updateFeaturedProduct = async (id: string, dataToUpdate: FeaturedProductForUpdate) => {   
     try {
       await startDb();
       const featuredProductUpd = {        

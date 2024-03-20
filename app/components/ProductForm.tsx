@@ -79,8 +79,7 @@ export default function ProductForm(props: Props) {
   useEffect(() => {
     const fetchSession = async () => {
       try {
-        const session = await getServerSession(authOptions);
-        console.log("session product form ====>>>>", session);
+        const session = await getServerSession(authOptions);   
         // Use the session data as needed
       } catch (error) {
         console.error("Error fetching session:", error);
@@ -98,8 +97,6 @@ export default function ProductForm(props: Props) {
 
  const fields = productInfo.bulletPoints 
 
-  console.log("ESTE FILEDS ====>>",{ fields });
-
   const addMoreBulletPoints = () => {
     setProductInfo({
       ...productInfo,
@@ -114,16 +111,12 @@ export default function ProductForm(props: Props) {
     setProductInfo({
       ...productInfo,
       bulletPoints: [...filteredPoints],
-    });
-
-    console.log({ onBulletPointRemove });
+    });   
 
     if (onBulletPointRemove) {
       onBulletPointRemove(field);
-      console.log({ productInfo });
     }
   };
-
 
   const updateBulletPointValue = (value: string, index: number) => {
     const oldValues = [...fields];

@@ -38,8 +38,7 @@ export default function UpdateProduct({product}:Props) {
         salePrice: product.salePrice,
         bulletPoints: bulletPoint,
         }
-
-        console.log("BULLETPOINT INICIAL", bulletPoint)
+       
 
 
     const handleImageRemove = (source: string, index: number) => {
@@ -57,8 +56,7 @@ export default function UpdateProduct({product}:Props) {
    ////// onSubmit ***
 
 
-   const handleOnSubmit = async (values: NewProductInfo) => {
-    console.log("VALUES HANDLEONSUBMIT ===>>",{values});
+   const handleOnSubmit = async (values: NewProductInfo) => { 
     
     try {      
       const {thumbnail, imagesFiles} = values
@@ -75,18 +73,15 @@ export default function UpdateProduct({product}:Props) {
         },
         thumbnailId: product.thumbnail?product.thumbnail[0].id:''
       };
+    
 
-     console.log("BULLTPOSINTS ===>>>", values.bulletPoints)
-
-      if (thumbnail) {
-        console.log("thumbnail====>", thumbnail)
-        console.log("thumbnailOld", initialValue.thumbnail)   
+      if (thumbnail) {       
  
         //Seria pelo initialValue que está sendo puxado pelo ProductResponse do fetchProductInfo.
 
         const source = initialValue.thumbnail
         const splittedData = source.split("/")
-        console.log("Data ThumbnailOld",splittedData)
+       
         const lastItem = splittedData[splittedData.length -1];
         const publicIdOld = lastItem.split(".")[0]; 
         await removeImageFromCloud(publicIdOld);
@@ -103,7 +98,7 @@ export default function UpdateProduct({product}:Props) {
       }
             
       updateProduct(product.id, dataToUpdate)
-      console.log({dataToUpdate})   
+ 
       router.refresh();
       router.push('/products');
       

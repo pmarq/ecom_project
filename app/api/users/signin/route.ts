@@ -26,12 +26,9 @@ export const POST = async (req: Request) => {
         user.password
       );
 
-      if(!isCorrectPassword) {
-        console.log("TESTE ====>>", user)
+      if(!isCorrectPassword) {      
         return NextResponse.json({error: "Email/password invalid!"});
-      }
-
-           
+      }           
 
       return NextResponse.json({
         user: {
@@ -39,6 +36,7 @@ export const POST = async (req: Request) => {
             name: user.name, 
             email: user.email,
             emailVerified: user.emailVerified, 
-            role: user.role        
+            role: user.role,
+            image: user.image               
           }})    
     }

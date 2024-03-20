@@ -19,10 +19,7 @@ import {
   
   interface Props {
     menuItems: MenuItems[];
-    image?: {
-      url: string;
-      public_id: string;
-    }
+    image?:string
   }
   
   export default function ProfileMenu({ menuItems , image }: Props) {
@@ -43,7 +40,7 @@ import {
               size="sm"
               alt="candice wu"
               className="border border-blue-500 p-0.5"
-              src={image?.url || "/avatar.jpg"}
+              src={image || "/avatar.jpg"}
             />
             <ChevronDownIcon
               strokeWidth={2.5}

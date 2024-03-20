@@ -11,24 +11,6 @@ interface Props {
     }
 }
 
-/* // ???
-
-const fetchTokenValidation = async (token: string , userId: string) => {
-   const resetToken = await prisma.activateResetToken.findUnique({
-        where: {
-            userId: userId,
-            token: token,
-            createdAt: {gt: new Date(Date.now() - 1000 * 60 * 60 * 2) },
-        },
-    })
-
-    console.log(resetToken)
-
-    if(!resetToken) return null;
-}
-//??
- */
-
 const fetchTokenValidation = async (token: string , userId: string) => {
     await startDb()
     const resetToken = await prisma.activateResetToken.findUnique({
@@ -39,17 +21,12 @@ const fetchTokenValidation = async (token: string , userId: string) => {
         },
        
     })
-    if(!resetToken) return null;
-
-    console.log(resetToken) 
-
-     // criar um metodo de comparação     
-
+    if(!resetToken) return null;    
     return true;  
 }
 
 export default async function ResetPassword({searchParams}:Props) {
-    console.log(searchParams)
+
     const {token, userId} = searchParams   
     
     if(!token || !userId) return redirect("/404")
@@ -59,4 +36,5 @@ export default async function ResetPassword({searchParams}:Props) {
     return(
      <UpdatePassword token={token} userId={userId} />
     )
+
 }

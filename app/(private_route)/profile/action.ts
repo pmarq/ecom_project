@@ -4,9 +4,7 @@ import { startDb } from "@/app/lib/db";
 import { UserProfileToUpdateUpdate } from "@/app/types";
 import prisma from "@/prisma";
 
-export const updateUserProfile = async (info: UserProfileToUpdateUpdate) => {
-
-    console.log({ info })
+export const updateUserProfile = async (info: UserProfileToUpdateUpdate) => {  
     try {
         await startDb();
         const user = await prisma.user.update({

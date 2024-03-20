@@ -6,11 +6,10 @@ import { startDb } from '@/app/lib/db';
 import prisma from '@/prisma';
 import { redirect } from 'next/navigation';
 
+
 const fetchUserProfile = async () => {
   const session = await getServerSession(authOptions) 
   if(!session?.user) return null;
-
-  console.log("SESSION===>>>",getServerSession)
   
   await startDb(); 
 
@@ -25,7 +24,7 @@ const fetchUserProfile = async () => {
     name: user.name ?? "",
     email: user.email ?? "",
     image: user.image ?? "",
-    emailVerified: user.emailVerified
+    emailVerified: user.emailVerified    
   }  
 }
 
@@ -52,8 +51,6 @@ const getCartItemsCount = async () => {
     
    })
 
-   console.log("Cart ====>",cart)
-
    let totalQuantity = 0;
     cart.forEach(cartDocument => {
       cartDocument.cartItems.forEach(cartItem => {
@@ -61,7 +58,6 @@ const getCartItemsCount = async () => {
       });
     });
 
-    console.log("TotalQuantity ====>",totalQuantity)
 
     return totalQuantity;    
     
@@ -76,6 +72,6 @@ export default async function Navbar() {
   const profile = await fetchUserProfile()
 
   return (
-  <NavUI cartItemsCount={cartItemsCount} avatar={profile?.image} />
-  )
+  <NavUI cartItemsCount={cartItemsCount} avatar={profile?.image} />  
+  );
 }

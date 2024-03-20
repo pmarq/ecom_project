@@ -68,6 +68,7 @@ export default function ProfileForm({ id, name, avatar, email }: Props) {
           type="submit"
           className="w-full shadow-none hover:shadow-none hover:scale-[0.98]"
           color="blue"
+          disabled={isPending}
         >
           Submit
         </Button>

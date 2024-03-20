@@ -97,7 +97,7 @@ export default function FeaturedProductForm({ initialValue }: Props) {
             { abortEarly: false });
       if (featuredProduct.file != undefined) {
         const banner = await uploadImage(featuredProduct.file);
-        console.log({ banner });
+       
         await createFeaturedProduct({ banner, link, linkTitle, title });
         router.refresh();
         setFeaturedProduct({...defaultProduct});
@@ -123,14 +123,11 @@ export default function FeaturedProductForm({ initialValue }: Props) {
           link,
           linkTitle,
           title
-      }  
-
-      console.log("bannerFile====>", file)
-      console.log("bannerOld", initialValue.banner)   
+      }     
 
       const source = initialValue.banner
       const splittedData = source.split("/")
-      console.log("Data BannrtOld",splittedData)
+     
       const lastItem = splittedData[splittedData.length -1];
       const publicIdOld = lastItem.split(".")[0]; 
       await removeImageFromCloud(publicIdOld);

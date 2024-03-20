@@ -36,8 +36,7 @@ export const getCloudSigature = async () => {
 
 /////////// CREATE PRODUCT
 
-export const createProduct = async (info: info) => {
-    console.log({ info });
+export const createProduct = async (info: info) => {   
     const userId = info.userId;
 
     const sale = (info.mrp - info.salePrice)/info.mrp
@@ -195,9 +194,7 @@ export const fetchProductInfo = async (productId: string): Promise<string> => {
 //remove image from cloud and from MongoDB (update no sentido de deixar cloudinary igual ao MongoDB)
 // pq imageId: string e não publicId???** 
 export const removeAndUpdateProductImage = async (productId: string, imageId: string, imageIdMongo: string) => {
-  const { result } = await cloudinary.uploader.destroy(imageId);
-  console.log({result})
-  console.log(productId, imageId)
+  const { result } = await cloudinary.uploader.destroy(imageId);  
   if (result === 'ok') {
     try {
       await startDb();
@@ -220,15 +217,11 @@ export const removeAndUpdateProductImage = async (productId: string, imageId: st
 export const deleteBulletPoint = 
 async (bulletPointToRemove: {content:string; id:string; productId:string}) => {
   try {
-    await startDb();
-
-    console.log("ID BULLET =====>", bulletPointToRemove.id)
+    await startDb();    
     
     const bulletPoint = await prisma.bulletPoint.findUnique({
-      where: {id: bulletPointToRemove.id}
-     
-    })
-     console.log(bulletPointToRemove.id)
+      where: {id: bulletPointToRemove.id}     
+    })    
     if (bulletPoint) {
       await prisma.bulletPoint.delete({
         where: { id: bulletPointToRemove.id }
@@ -246,8 +239,6 @@ async (bulletPointToRemove: {content:string; id:string; productId:string}) => {
 ///////////////////// UPDATE PRODUCT
 
 export const updateProduct = async (productId: string, dataToUpdate: ProductDataToUpdate) => {
-
-  console.log("This is product to Update ====>",{productId, dataToUpdate})
 
    const prodsUpdt = {
     title: dataToUpdate.title,
@@ -285,8 +276,7 @@ export const updateProduct = async (productId: string, dataToUpdate: ProductData
     }    
 
    // updateBulletpoints  
-   if(dataToUpdate.bulletPoints) {
-     console.log("ITEM+++++++++++>>>>", dataToUpdate.bulletPoints)
+   if(dataToUpdate.bulletPoints) {     
     dataToUpdate.bulletPoints.map(async (item: BulletPoints) => {     
       try {
         if (item.id) {

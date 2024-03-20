@@ -11,7 +11,7 @@ interface Auth {
 
 export default function useAuth(): Auth {
   const session = useSession()
-  console.log("THIS IS THE SESSION =====>", session.data?.user)
+
   const user = session.data?.user
   
   

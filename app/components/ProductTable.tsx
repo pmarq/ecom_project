@@ -88,8 +88,6 @@ export default function ProductTable(props: Props) {
     if (isNaN(+currentPageNo)) return redirect("/404"); 
 
     const allProds = await fetchProducts(userId, +currentPageNo, productsPerPage);
-    console.log({allProds})
-
 
     if(allProds.length < productsPerPage) {
       hasMore = false; 

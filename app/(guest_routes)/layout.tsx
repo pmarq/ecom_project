@@ -9,10 +9,8 @@ interface Props {
 }
 
 export default async function GuestLayout({children}: Props) {  
-    const session = await getServerSession(authOptions)
-    console.log("GUEST - Auth Session ====>",session)
-    if (session) return redirect("/")
-   
+    const session = await getServerSession(authOptions)   
+    if (session) return redirect("/")   
   return (
     <div>
       <Navbar />

@@ -8,7 +8,7 @@ import nodemailer from "nodemailer"
 export const POST = async (req: Request) => {
     try {
         const {password, token, userId} = await req.json() as UpdatePasswordRequest
-        console.log(password,token,userId)
+        
         if(!password || !token || !userId) return NextResponse.json({error:"Invalid Request!"}, {status: 401})        
 
         await startDb()
@@ -19,7 +19,7 @@ export const POST = async (req: Request) => {
             createdAt: {gt: new Date(Date.now() - 1000 * 60 * 60 * 2) },
         },       
     })
-    console.log(resetToken)
+   
        if(!resetToken) return NextResponse.json({error: "Invalid Request!"}, {status: 401});
       
       const user = await prisma.user.findUnique ({

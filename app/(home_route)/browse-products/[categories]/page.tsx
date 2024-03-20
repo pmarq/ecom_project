@@ -82,9 +82,7 @@ export default async function ProductByCategory({params}: Props) {
       thumbnail: item?.thumbnail[0].url,
       price: { base: obj.base, discounted: obj.discounted },
       sale: item.sale      
-    };
-
-    console.log("NEWPRODUCTOBJ====>",newProdObj);
+    };   
 
     newArr.push(newProdObj)    
 

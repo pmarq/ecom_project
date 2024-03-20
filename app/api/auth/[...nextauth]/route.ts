@@ -42,11 +42,9 @@ export const authOptions: NextAuthOptions = {
   ],
   
   callbacks:{
-    async jwt(params) {
-      console.log("jwt ====>" , params)
+    async jwt(params) { 
       if(params.user){
-        params.token.user = {...params.token,...params.user}
-        
+        params.token.user = {...params.token,...params.user}        
       }      
      
       return params.token
@@ -68,16 +66,7 @@ export const authOptions: NextAuthOptions = {
 
 
      params.session.user = {...params.session.user, ...user}
-    }
-    
-    console.log("session ====>" , params)
-
-   // const user = params.token as typeof params.token & SessionUserProfile      
-    
-    console.log("newparamstokenUSER====>", user)
-
-    //console.log("Email verified? =====>", user.emailVerified) //verified com letra minuscula
-    //console.log("Role? =====>",user.role)    
+    }   
    
     return params.session;
     },

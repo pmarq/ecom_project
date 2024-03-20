@@ -10,7 +10,6 @@ interface Props {
 
 export default async function PrivateLayout({children}: Props) {   
     const session = await getServerSession(authOptions)
-    console.log("PRIVATE - Auth Session===>>", session)
     if (!session) return redirect("/auth/signin")
   
    
