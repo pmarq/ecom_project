@@ -122,12 +122,12 @@ model BulletPoint {
 }
 
 model CartItem {
-  id            String       @id @default(auto()) @map("_id") @db.ObjectId
-  quantity      Int
-  productId     String       @db.ObjectId
-  product       Product      @relation("CartItemtoProduct", fields: [productId], references: [id])
-  cartDocument  CartDocument @relation("CartDocumenttoCartItem", fields: [cartDocumetId], references: [id])
-  cartDocumetId String       @db.ObjectId
+  id             String       @id @default(auto()) @map("_id") @db.ObjectId
+  quantity       Int
+  productId      String       @db.ObjectId
+  product        Product      @relation("CartItemtoProduct", fields: [productId], references: [id])
+  cartDocument   CartDocument @relation("CartDocumenttoCartItem", fields: [cartDocumentId], references: [id])
+  cartDocumentId String       @db.ObjectId
 }
 
 model CartDocument {

@@ -1,20 +1,21 @@
 "use client";
-import React, { useState } from "react";
-import CartCountUpdater from "./CartCountUpdater"; 
 import Image from "next/image";
-import { XMarkIcon } from "@heroicons/react/24/outline";
-import { Button } from "@material-tailwind/react";
+import React, { useState } from "react";
 import { formatPrice } from "../utils/helper";
-
+import { Button } from "@material-tailwind/react";
+import CartCountUpdater from "./CartCountUpdater";
+import { XMarkIcon } from "@heroicons/react/24/outline";
+import { useRouter } from "next/navigation";
 
 export interface Product {
   id: string;
-  thumbnail: string;
+  quantity: number;
+  productId: string;
+  cartDocumetId: string;
+  price: { discounted: number };
+  thumbnails: { url: string }[];
   title: string;
-  price: number;
-  totalPrice: number;
-  qty: number;
-}
+} 
 
 interface CartItemsProps {
   products: Product[];
@@ -29,6 +30,20 @@ const CartItems: React.FC<CartItemsProps> = ({
   cartTotal,
 }) => {
   const [busy, setBusy] = useState(false);
+  const router = useRouter();
+
+  const updateCart = async (prodcutId: string, quantity: number) => {
+    setBusy(true)
+    await fetch('/api/product/cart', {
+      method: 'POST',    
+      body: JSON.stringify({  
+        productId: prodcutId,
+        quantity: quantity           
+      })
+    })  
+    router.refresh() 
+    setBusy(false)
+  }
 
   return (
     <div>
@@ -38,7 +53,7 @@ const CartItems: React.FC<CartItemsProps> = ({
             <tr key={product.id}>
               <td className="py-4">
                 <Image
-                  src={product.thumbnail}
+                  src={product.thumbnails[0].url}
                   alt={product.title}
                   height={40}
                   width={40}
@@ -46,13 +61,17 @@ const CartItems: React.FC<CartItemsProps> = ({
               </td>
               <td className="py-4">{product.title}</td>
               <td className="py-4 font-semibold">
-                {formatPrice(product.totalPrice)}
+                {formatPrice((product.price.discounted*product.quantity))} {/* isso está certo? */}
               </td>
               <td className="py-4">
-                <CartCountUpdater value={product.qty} disabled={busy} />
+                <CartCountUpdater 
+                onDecrement={() => updateCart(product.productId, - 1)} 
+                onIncrement={() => updateCart(product.productId,  1)} 
+                value={product.quantity} disabled={busy} />
               </td>
               <td className="py-4 text-right">
                 <button
+                  onClick={() => updateCart(product.productId, -product.quantity)}
                   disabled={busy}
                   className="text-red-500"
                   style={{ opacity: busy ? "0.5" : "1" }}
