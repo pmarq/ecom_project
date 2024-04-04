@@ -6,22 +6,30 @@ import { Button } from "@material-tailwind/react";
 import CartCountUpdater from "./CartCountUpdater";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { useRouter } from "next/navigation";
+import { JsonValue } from "@prisma/client/runtime/library";
+import { resolveTypeJsonValues } from "../utils/helpers/resolveTypeJsonValues";
 
 export interface Product {
   id: string;
+  title?: string | undefined;
+  price?: JsonValue | undefined;
+  thumbnails?:
+    | {
+        id: string;
+        url: string;
+        publicId: string;
+        productId: string;
+      }[]
+    | undefined;
   quantity: number;
   productId: string;
-  cartDocumetId: string;
-  price: { discounted: number };
-  thumbnails: { url: string }[];
-  title: string;
-} 
+  cartDocumentId: string;
+}
 
 interface CartItemsProps {
   products: Product[];
   cartTotal: number;
-  totalQty: number;
-  cartId: string;
+  totalQty: number; 
 }
 
 const CartItems: React.FC<CartItemsProps> = ({
@@ -33,54 +41,67 @@ const CartItems: React.FC<CartItemsProps> = ({
   const router = useRouter();
 
   const updateCart = async (prodcutId: string, quantity: number) => {
-    setBusy(true)
-    await fetch('/api/product/cart', {
-      method: 'POST',    
-      body: JSON.stringify({  
+    setBusy(true);
+    await fetch("/api/product/cart", {
+      method: "POST",
+      body: JSON.stringify({
         productId: prodcutId,
-        quantity: quantity           
-      })
-    })  
-    router.refresh() 
-    setBusy(false)
-  }
+        quantity: quantity,
+      }),
+    });
+    router.refresh();
+    setBusy(false);
+  };
 
   return (
     <div>
       <table className="min-w-full divide-y divide-gray-200">
         <tbody className="bg-white divide-y divide-gray-200">
-          {products.map((product) => (
-            <tr key={product.id}>
-              <td className="py-4">
-                <Image
-                  src={product.thumbnails[0].url}
-                  alt={product.title}
-                  height={40}
-                  width={40}
-                />
-              </td>
-              <td className="py-4">{product.title}</td>
-              <td className="py-4 font-semibold">
-                {formatPrice((product.price.discounted*product.quantity))} {/* isso está certo? */}
-              </td>
-              <td className="py-4">
-                <CartCountUpdater 
-                onDecrement={() => updateCart(product.productId, - 1)} 
-                onIncrement={() => updateCart(product.productId,  1)} 
-                value={product.quantity} disabled={busy} />
-              </td>
-              <td className="py-4 text-right">
-                <button
-                  onClick={() => updateCart(product.productId, -product.quantity)}
-                  disabled={busy}
-                  className="text-red-500"
-                  style={{ opacity: busy ? "0.5" : "1" }}
-                >
-                  <XMarkIcon className="w-5 h-5" />
-                </button>
-              </td>
-            </tr>
-          ))}
+          {products.map((product) => {
+            const quantity = product.quantity;
+            const price = resolveTypeJsonValues(product?.price)
+
+            const discounted = price?.discounted ?? 1;
+            const multiplication = discounted * quantity;
+
+            const thumbnails = product?.thumbnails
+              ? product.thumbnails[0]?.url
+              : "";
+            return (
+              <tr key={product.id}>
+                <td className="py-4">
+                  <Image
+                    src={thumbnails ?? ""}
+                    alt={product?.title ?? ""}
+                    height={40}
+                    width={40}
+                  />
+                </td>
+                <td className="py-4">{product.title}</td>
+                <td className="py-4 font-semibold">
+                  {formatPrice(multiplication)}
+                </td>
+                <td className="py-4">
+                  <CartCountUpdater
+                    onDecrement={() => updateCart(product.productId, -1)}
+                    onIncrement={() => updateCart(product.productId, 1)}
+                    value={quantity}
+                    disabled={busy}
+                  />
+                </td>
+                <td className="py-4 text-right">
+                  <button
+                    onClick={() => updateCart(product.productId, -quantity)}
+                    disabled={busy}
+                    className="text-red-500"
+                    style={{ opacity: busy ? "0.5" : "1" }}
+                  >
+                    <XMarkIcon className="w-5 h-5" />
+                  </button>
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
 
