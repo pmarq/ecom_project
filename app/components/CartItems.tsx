@@ -8,6 +8,7 @@ import { XMarkIcon } from "@heroicons/react/24/outline";
 import { useRouter } from "next/navigation";
 import { JsonValue } from "@prisma/client/runtime/library";
 import { resolveTypeJsonValues } from "../utils/helpers/resolveTypeJsonValues";
+import { toast } from "react-toastify";
 
 export interface Product {
   id: string;
@@ -50,6 +51,22 @@ const CartItems: React.FC<CartItemsProps> = ({
       }),
     });
     router.refresh();
+    setBusy(false);
+  };
+
+  const checkoutWorkFlow = async () => {
+    setBusy(true);
+    const getUrl = await fetch("/api/checkout", {
+      method: "POST",
+      body: JSON.stringify({}),
+    });
+    const { error, url } = await getUrl.json();
+
+    if (!getUrl.ok) {
+      toast.error(error);
+    } else {
+      window.location.href = url;
+    }
     setBusy(false);
   };
 
@@ -117,6 +134,7 @@ const CartItems: React.FC<CartItemsProps> = ({
           className="shadow-none hover:shadow-none  focus:shadow-none focus:scale-105 active:scale-100"
           color="green"
           disabled={busy}
+          onClick={checkoutWorkFlow}
         >
           Checkout
         </Button>

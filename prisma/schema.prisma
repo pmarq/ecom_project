@@ -30,6 +30,8 @@ model User {
   role UserRole @default(USER)
 
   accounts Account[]
+
+  orders Order[]
 }
 
 enum UserRole {
@@ -147,4 +149,58 @@ model FeaturedProduct {
   url       String
   publicId  String
   createdAt DateTime @default(now())
+}
+
+////// orders
+
+model Order {
+  id               String            @id @default(auto()) @map("_id") @db.ObjectId
+  userId           String            @db.ObjectId
+  stripeCustomerId String
+  paymentIntent    String
+  totalAmount      Float
+  paymentStatus    String
+  deliveryStatus   DeliveryStatus    @default(ORDERED)
+  createdAt        DateTime          @default(now())
+  user             User              @relation(fields: [userId], references: [id])
+  shippingDetails  ShippingDetails[] @relation("ShippingDetailsToOrder")
+  orderItems       OrderItem[]       @relation("OrderItemToOrder")
+}
+
+enum DeliveryStatus {
+  DELIVERED
+  ORDERED
+  SHIPPED
+}
+
+model ShippingDetails {
+  id      String    @id @default(auto()) @map("_id") @db.ObjectId
+  orderId String?   @db.ObjectId
+  address Address[] @relation("AddressToShippingDetails")
+  email   String
+  name    String
+  order   Order?    @relation("ShippingDetailsToOrder", fields: [orderId], references: [id])
+}
+
+model Address {
+  id         String          @id @default(auto()) @map("_id") @db.ObjectId
+  shippingId String          @db.ObjectId
+  city       String
+  country    String
+  line1      String
+  line2      String?
+  postalCode String
+  state      String
+  shipping   ShippingDetails @relation("AddressToShippingDetails", fields: [shippingId], references: [id])
+}
+
+model OrderItem {
+  id         String @id @default(auto()) @map("_id") @db.ObjectId
+  orderId    String @db.ObjectId
+  title      String
+  thumbnail  String
+  totalPrice Float
+  price      Float
+  qty        Int
+  order      Order  @relation("OrderItemToOrder", fields: [orderId], references: [id])
 }

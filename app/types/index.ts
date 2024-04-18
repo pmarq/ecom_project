@@ -1,3 +1,5 @@
+import { JsonValue } from "@prisma/client/runtime/library";
+
 export interface MenuItems {
     href: string;
     icon: React.JSX.Element;
@@ -173,4 +175,29 @@ export interface SessionUserProfile {
       publicId: string;
     };
     name: string; 
+  }
+
+  export interface Product {
+    id: string;
+    title: string  ;
+    price?: JsonValue | undefined;
+    thumbnails?:
+      | {
+          id: string;
+          url: string;
+          publicId: string;
+          productId: string;
+        }[]
+      | undefined;
+    quantity: number;
+    productId: string;
+    cartDocumentId: string;
+  }
+
+  export interface StripeCustomer {
+    metadata: {
+    userId: string,
+    cartId: string, //não entendi
+    type: "checkout",
+    }   
   }

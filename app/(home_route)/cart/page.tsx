@@ -23,6 +23,7 @@ type TItemProd = {
   }[];
 } | null;
 
+
 const fetchCartProducts = async () => {
   const session = await getServerSession(authOptions);
   if (!session?.user) {
@@ -38,9 +39,9 @@ const fetchCartProducts = async () => {
       cartItems: true,
     },
   });
+ 
   const arrItems = cartItems?.cartItems;
   
-
   let arrProdsPromises: TArrPromises[] = [];
   arrItems?.map(async (item) => {
     const prodId = item.productId;
@@ -73,7 +74,6 @@ const fetchCartProducts = async () => {
   });
   return arrObjs;  
 };
-
 
 
 export default async function Cart() {
@@ -123,7 +123,7 @@ export default async function Cart() {
       <CartItems
         products={cart}
         cartTotal={cartTotal}
-        totalQty={totalQty}        
+        totalQty={totalQty} 
       />
     </div>
   );
