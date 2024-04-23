@@ -17,7 +17,7 @@ type TItemProd = {
     id: string;
     url: string;
     publicId: string;
-    productId: string;
+    productId: string;    
   }[];
 } | null;
 
@@ -69,5 +69,5 @@ export const getCartItems = async () => {
       }
     });
   });
-  return arrObjs;  
+  return {arrObjs, cartItems};  
 };

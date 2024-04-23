@@ -36,7 +36,7 @@ const fetchCartProducts = async () => {
       id: session.user.id,
     },
     include: {
-      cartItems: true,
+      cartItems: true,      
     },
   });
  
@@ -72,7 +72,7 @@ const fetchCartProducts = async () => {
       }
     });
   });
-  return arrObjs;  
+  return {arrObjs, cartItems};  
 };
 
 
@@ -95,7 +95,7 @@ export default async function Cart() {
   let totalQty = 0;
   let cartTotal = 0;
 
-  cart.map((item: Product) => {
+  cart.arrObjs.map((item: Product) => {
     const newPrice = resolveTypeJsonValues(item?.price);
     const discounted = newPrice.discounted ?? 0;
 
@@ -117,13 +117,14 @@ export default async function Cart() {
     );
   }
 
-  console.log({ totalQty, cartTotal });
+  console.log({ totalQty, cartTotal, cart });
   return (
     <div>
       <CartItems
-        products={cart}
+        products={cart.arrObjs}
         cartTotal={cartTotal}
-        totalQty={totalQty} 
+        totalQty={totalQty}
+        cartId ={cart.cartItems?.cartItems[0]?.id}
       />
     </div>
   );

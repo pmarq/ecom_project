@@ -28,6 +28,7 @@ export interface Product {
 }
 
 interface CartItemsProps {
+  cartId?: string;
   products: Product[];
   cartTotal: number;
   totalQty: number; 
@@ -37,6 +38,7 @@ const CartItems: React.FC<CartItemsProps> = ({
   products = [],
   totalQty,
   cartTotal,
+  cartId,
 }) => {
   const [busy, setBusy] = useState(false);
   const router = useRouter();
@@ -54,17 +56,19 @@ const CartItems: React.FC<CartItemsProps> = ({
     setBusy(false);
   };
 
-  const checkoutWorkFlow = async () => {
+  const handleCheckout = async () => {
     setBusy(true);
     const getUrl = await fetch("/api/checkout", {
       method: "POST",
-      body: JSON.stringify({}),
+      body: JSON.stringify({cartId}),
     });
+
     const { error, url } = await getUrl.json();
 
     if (!getUrl.ok) {
       toast.error(error);
     } else {
+      // open the checkout url.
       window.location.href = url;
     }
     setBusy(false);
@@ -134,7 +138,7 @@ const CartItems: React.FC<CartItemsProps> = ({
           className="shadow-none hover:shadow-none  focus:shadow-none focus:scale-105 active:scale-100"
           color="green"
           disabled={busy}
-          onClick={checkoutWorkFlow}
+          onClick={handleCheckout}
         >
           Checkout
         </Button>

@@ -197,7 +197,7 @@ export interface SessionUserProfile {
   export interface StripeCustomer {
     metadata: {
     userId: string,
-    cartId: string, //não entendi
+    cartId: string, 
     type: "checkout",
     }   
   }
