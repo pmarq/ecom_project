@@ -1,4 +1,5 @@
 import { getCartItems } from "@/app/lib/cartHelper";
+import { startDb } from "@/app/lib/db";
 import { StripeCustomer } from "@/app/types";
 import prisma from "@/prisma";
 import { NextResponse } from "next/server";
@@ -40,27 +41,34 @@ const stripe = new Stripe(stripeSecret, {
             payment_status: string;
           }
 
+        console.log("EVENT=====>",event)
+
         const customer = await stripe.customers.retrieve(stripeSession.customer!) as 
         unknown as StripeCustomer
+
+        
 
         const { userId, cartId, type } = customer.metadata
         // create new order
         if(type === "checkout") {
            const cartItems = await getCartItems() 
-           prisma.order.create(
+           startDb()
+           console.log("STRIPESESS=====>",stripeSession)
+           await prisma.order.create(
             {
                 data: {
                     userId,
                     stripeCustomerId: stripeSession.customer,
                     paymentIntent: stripeSession.payment_intent,
-                    shippingDetails: {
-                        address: stripeSession.customer_details.address,
+                    /* shippingDetails: {
+                        address: [stripeSession.customer_details.address]??[],
                         name: stripeSession.customer_details.name,
                         email: stripeSession.customer_details.email         
-                    },
+                    }, */
                     paymentStatus: stripeSession.payment_status,
-                    deliveryStatus: "ORDERED",
-                    orderItems: cartItems?.arrObjs                                 
+                    deliveryStatus: "ORDERED",                   
+                    /* orderItems: cartItems?.arrObjs */ 
+                    totalAmount: stripeSession.amount_subtotal                                
                 }
             }
            )
