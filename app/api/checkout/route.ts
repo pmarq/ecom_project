@@ -4,7 +4,7 @@ import { getCartItems } from "@/app/lib/cartHelper";
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
-import CartItems from "@/app/components/CartItems";
+
 
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
