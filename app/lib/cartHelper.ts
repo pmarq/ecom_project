@@ -6,7 +6,6 @@ import { startDb } from "./db";
 import prisma from "@/prisma";
 import { Product } from "../components/CartItems";
 
-
 type TArrPromises = Prisma.Prisma__ProductClient<TItemProd, null, DefaultArgs>;
 
 type TItemProd = {
@@ -17,7 +16,7 @@ type TItemProd = {
     id: string;
     url: string;
     publicId: string;
-    productId: string;    
+    productId: string;
   }[];
 } | null;
 
@@ -26,6 +25,9 @@ export const getCartItems = async () => {
   if (!session?.user) {
     return null;
   }
+
+  console.log("SESSION====>", session);
+
   await startDb();
 
   const cartItems = await prisma.cartDocument.findUnique({
@@ -37,7 +39,8 @@ export const getCartItems = async () => {
     },
   });
   const arrItems = cartItems?.cartItems;
-  
+
+  console.log("CartItems====>", arrItems, cartItems);
 
   let arrProdsPromises: TArrPromises[] = [];
   arrItems?.map(async (item) => {
@@ -54,7 +57,7 @@ export const getCartItems = async () => {
     arrProdsPromises.push(prodsInfo);
   });
 
-  const arrProds = await Promise.all(arrProdsPromises); 
+  const arrProds = await Promise.all(arrProdsPromises);
 
   let arrObjs: Product[] = [];
 
@@ -69,5 +72,7 @@ export const getCartItems = async () => {
       }
     });
   });
-  return {arrObjs, cartItems};  
+
+  console.log("ARROBJ====>", arrObjs, cartItems);
+  return { arrObjs, cartItems };
 };
