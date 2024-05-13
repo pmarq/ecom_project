@@ -137,7 +137,7 @@ export const POST = async (req: Request) => {
       await Promise.all(orderCartItems);
       console.log("All order items have been created.");
 
-      // ---- Create Shipping Details ---- //
+      // ---- Create Shipping Details ----
 
       await prisma.shippingDetails.create({
         data: {
