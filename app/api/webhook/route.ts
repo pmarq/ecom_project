@@ -1,5 +1,4 @@
 import { getCartItems } from "@/app/lib/cartHelper";
-import { startDb } from "@/app/lib/db";
 import { StripeCustomer } from "@/app/types";
 import { resolveTypeJsonValues } from "@/app/utils/helpers/resolveTypeJsonValues";
 import prisma from "@/prisma";
@@ -22,8 +21,8 @@ async function createOrderItem(item: any) {
 }
 
 export const POST = async (req: Request) => {
+  console.log("Start Webhook====>", req);
   const data = await req.text();
-
   const signature = req.headers.get("stripe-signature")!;
 
   let event;
@@ -34,6 +33,9 @@ export const POST = async (req: Request) => {
       signature,
       webhookSecret
     );
+    if (!event) {
+      return NextResponse.json({ error: "Invalid event" }, { status: 400 });
+    }
   } catch (error) {
     console.error("Error===>", error);
     return NextResponse.json(
@@ -42,7 +44,10 @@ export const POST = async (req: Request) => {
     );
   }
 
-  console.log("Event===>", event.type);
+  console.log("EventAQUI===>", event.type);
+  /* 
+  const session = await getServerSession(authOptions);
+  console.log("SESSION====>", session); */
 
   if (event.type === "checkout.session.completed") {
     const stripeSession = event.data.object as {
@@ -77,9 +82,16 @@ export const POST = async (req: Request) => {
     if (type === "checkout") {
       console.log("CHECOUT===>", "checkout");
 
-      const cartItems = await getCartItems();
+      const userId = customer.metadata.userId;
 
-      console.log("CARTITEMS=====>", cartItems);
+      const cartItems = await getCartItems(userId); // essa função eu passo mas ela não está pegando o cartItems
+
+      if (!cartItems || !cartItems.arrObjs) {
+        console.error("No cart items found for user:");
+        return;
+      }
+
+      console.log("CARTITEMS=====>", cartItems); // resultado do console log é null
 
       console.log("STRIPESESS=====>", stripeSession);
 
@@ -94,7 +106,7 @@ export const POST = async (req: Request) => {
         },
       });
 
-      const orderCartItems = cartItems?.arrObjs.map((product) => {
+      const orderCartItems = cartItems?.arrObjs.map(async (product) => {
         const { quantity, price, title, thumbnails } = product;
         const newPrice = resolveTypeJsonValues(price);
         const discounted = newPrice.discounted ?? 0;
@@ -111,12 +123,23 @@ export const POST = async (req: Request) => {
           orderId,
         };
 
-        console.log("OBJ=====>", obj);
+        console.log("Order Item Details:", obj);
 
-        createOrderItem(obj);
+        // Ensure each order item creation is awaited
+        try {
+          await createOrderItem(obj);
+          console.log("Order item created successfully for:", title);
+        } catch (error) {
+          console.error("Failed to create order item for:", title, error);
+        }
       });
 
-      const shippingDetails = await prisma.shippingDetails.create({
+      await Promise.all(orderCartItems);
+      console.log("All order items have been created.");
+
+      // ---- Create Shipping Details ---- //
+
+      await prisma.shippingDetails.create({
         data: {
           orderId: order.id,
           email: stripeSession.customer_details.email,

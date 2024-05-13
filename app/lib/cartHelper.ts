@@ -20,19 +20,19 @@ type TItemProd = {
   }[];
 } | null;
 
-export const getCartItems = async () => {
+export const getCartItems = async (userId?: any) => {
+  console.log("GETCARTITEMS");
   const session = await getServerSession(authOptions);
-  if (!session?.user) {
+  console.log("SESSION====>", session);
+  if (!session?.user && !userId) {
     return null;
   }
-
-  console.log("SESSION====>", session);
 
   await startDb();
 
   const cartItems = await prisma.cartDocument.findUnique({
     where: {
-      id: session.user.id,
+      id: userId ?? session?.user.id,
     },
     include: {
       cartItems: true,
