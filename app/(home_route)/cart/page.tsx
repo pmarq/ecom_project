@@ -8,7 +8,6 @@ import { Prisma } from "@prisma/client";
 import { DefaultArgs, JsonValue } from "@prisma/client/runtime/library";
 import { resolveTypeJsonValues } from "@/app/utils/helpers/resolveTypeJsonValues";
 
-
 type TArrPromises = Prisma.Prisma__ProductClient<TItemProd, null, DefaultArgs>;
 
 type TItemProd = {
@@ -23,7 +22,6 @@ type TItemProd = {
   }[];
 } | null;
 
-
 const fetchCartProducts = async () => {
   const session = await getServerSession(authOptions);
   if (!session?.user) {
@@ -36,12 +34,12 @@ const fetchCartProducts = async () => {
       id: session.user.id,
     },
     include: {
-      cartItems: true,      
+      cartItems: true,
     },
   });
- 
+
   const arrItems = cartItems?.cartItems;
-  
+
   let arrProdsPromises: TArrPromises[] = [];
   arrItems?.map(async (item) => {
     const prodId = item.productId;
@@ -57,7 +55,7 @@ const fetchCartProducts = async () => {
     arrProdsPromises.push(prodsInfo);
   });
 
-  const arrProds = await Promise.all(arrProdsPromises); 
+  const arrProds = await Promise.all(arrProdsPromises);
 
   let arrObjs: Product[] = [];
 
@@ -72,9 +70,8 @@ const fetchCartProducts = async () => {
       }
     });
   });
-  return {arrObjs, cartItems};  
+  return { arrObjs, cartItems };
 };
-
 
 export default async function Cart() {
   const cart = await fetchCartProducts();
@@ -117,14 +114,13 @@ export default async function Cart() {
     );
   }
 
-  console.log({ totalQty, cartTotal, cart });
   return (
     <div>
       <CartItems
         products={cart.arrObjs}
         cartTotal={cartTotal}
         totalQty={totalQty}
-        cartId ={cart.cartItems?.cartItems[0]?.id}
+        cartId={cart.cartItems?.cartItems[0]?.id}
       />
     </div>
   );

@@ -32,24 +32,39 @@ interface Props {
 }
 
 export default function ProductCard({ product }: Props) {
-  const {loggedIn} = useAuth()
-  const router = useRouter()
+  const { loggedIn } = useAuth();
+  const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
+  const handleCheckout = async () => {
+    const getUrl = await fetch("/api/checkout/instant", {
+      method: "POST",
+      body: JSON.stringify({ product, type: "instant-checkout" }),
+    });
+
+    const { error, url } = await getUrl.json();
+
+    if (!getUrl.ok) {
+      toast.error(error);
+    } else {
+      // open the checkout url.
+      window.location.href = url;
+    }
+  };
+
   const addToCart = async (): Promise<void> => {
-   
-    if(!loggedIn) return router.push("/auth/signin")
+    if (!loggedIn) return router.push("/auth/signin");
     const res = await fetch("/api/product/cart", {
       method: "POST",
-      body: JSON.stringify({productId: product.id, quantity: 1})
-    })
+      body: JSON.stringify({ productId: product.id, quantity: 1 }),
+    });
     const { error } = await res.json();
     if (!res.ok && error) {
       toast.error(error);
-       return; // Ensure the function returns void here
-  }
-  router.refresh()
-}
+      return; // Ensure the function returns void here
+    }
+    router.refresh();
+  };
 
   return (
     <Card className="w-full">
@@ -61,7 +76,10 @@ export default function ProductCard({ product }: Props) {
         >
           <Image src={product.thumbnail} alt={product.title} fill />
           <div className="absolute right-0 p-2">
-            <Chip color="red" value={`${(product.sale*100).toFixed(0)}% off`} />
+            <Chip
+              color="red"
+              value={`${(product.sale * 100).toFixed(0)}% off`}
+            />
           </div>
         </CardHeader>
         <CardBody>
@@ -88,8 +106,8 @@ export default function ProductCard({ product }: Props) {
           ripple={false}
           fullWidth={true}
           className="bg-blue-gray-900/10 text-blue-gray-900 shadow-none hover:shadow-none hover:scale-105 focus:shadow-none focus:scale-105 active:scale-100"
-          onClick={() =>{
-            startTransition(async () => await addToCart())
+          onClick={() => {
+            startTransition(async () => await addToCart());
           }}
           disabled={isPending}
         >
@@ -99,6 +117,9 @@ export default function ProductCard({ product }: Props) {
           disabled={isPending}
           ripple={false}
           fullWidth={true}
+          onClick={() => {
+            startTransition(async () => await handleCheckout());
+          }}
           className="bg-blue-400 text-white shadow-none hover:shadow-none hover:scale-105 focus:shadow-none focus:scale-105 active:scale-100"
         >
           Buy Now

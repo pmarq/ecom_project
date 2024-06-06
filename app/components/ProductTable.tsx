@@ -17,7 +17,8 @@ import SearchForm from "./SearchForm";
 import { useSession } from "next-auth/react";
 import { useState } from "react";
 import { fetchProducts } from "../(admin)/products/action";
-
+import { resolveTypeJsonValues } from "../utils/helpers/resolveTypeJsonValues";
+import { Prisma } from "@prisma/client";
 
 export interface Product {
   id: string;
@@ -51,7 +52,7 @@ const TABLE_HEAD = [
   "Edit",
 ];
 
-interface Props { 
+interface Props {
   currentPageNo: number;
   hasMore?: boolean;
   showPageNavigator?: boolean;
@@ -59,7 +60,13 @@ interface Props {
 
 interface Prods {
   category: string;
-  price: any,
+  /*   price: {
+    base: number;
+    discounted: number;
+  }; */
+
+  price: Prisma.JsonValue;
+
   quantity: number;
   thumbnails: {
     id: string;
@@ -74,7 +81,7 @@ let hasMore: boolean;
 
 export default function ProductTable(props: Props) {
   const router = useRouter();
-  const {currentPageNo, showPageNavigator = true} = props;
+  const { currentPageNo, showPageNavigator = true } = props;
 
   const [sttProds, setProds] = useState<Prods[]>([]);
   const [sttProdsFirstTime, setProdsFirstTime] = useState<boolean>(true);
@@ -85,16 +92,21 @@ export default function ProductTable(props: Props) {
     const session = useSession();
     const userId = session.data?.user.id;
 
-    if (isNaN(+currentPageNo)) return redirect("/404"); 
+    if (isNaN(+currentPageNo)) return redirect("/404");
 
-    const allProds = await fetchProducts(userId, +currentPageNo, productsPerPage);
+    let allProds = await fetchProducts(userId, +currentPageNo, productsPerPage);
 
-    if(allProds.length < productsPerPage) {
-      hasMore = false; 
-    } else hasMore = true
+    /* allProds = {
+      ...allProds,
+      price: resolveTypeJsonValues(allProds.price),
+    }; */
 
-    const prod1id = allProds[0]?.id
-    const prod2id = sttProds[0]?.id
+    if (allProds.length < productsPerPage) {
+      hasMore = false;
+    } else hasMore = true;
+
+    const prod1id = allProds[0]?.id;
+    const prod2id = sttProds[0]?.id;
 
     if (prod1id != prod2id) {
       setProds(allProds);
@@ -159,6 +171,10 @@ export default function ProductTable(props: Props) {
             {sttProds.map((item: Prods, index: number) => {
               const thumbnail = item.thumbnails[0].url;
               const { id, title, price, quantity, category } = item;
+
+              //newprice//
+              let newPrice = resolveTypeJsonValues(price);
+
               const isLast = index === sttProds.length - 1;
               const classes = isLast
                 ? "p-4"
@@ -191,7 +207,7 @@ export default function ProductTable(props: Props) {
                       color="blue-gray"
                       className="font-normal"
                     >
-                      {formatPrice(price.base)}
+                      {formatPrice(newPrice.base)}
                     </Typography>
                   </td>
                   <td className={classes}>
@@ -200,7 +216,7 @@ export default function ProductTable(props: Props) {
                       color="blue-gray"
                       className="font-normal"
                     >
-                      {formatPrice(price.discounted)}
+                      {formatPrice(newPrice.discounted)}
                     </Typography>
                   </td>
                   <td className={classes}>
