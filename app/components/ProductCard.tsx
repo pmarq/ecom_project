@@ -15,6 +15,7 @@ import useAuth from "../hooks/useAuth";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { useTransition } from "react";
+import Rating from "./Rating";
 
 interface Props {
   product: {
@@ -24,6 +25,7 @@ interface Props {
     category: string;
     thumbnail: string;
     sale: number;
+    rating?: number;
     price: {
       base: number;
       discounted: number;
@@ -31,7 +33,17 @@ interface Props {
   };
 }
 
+const formatPrice = (amount: number) => {
+  const formatter = new Intl.NumberFormat("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  });
+
+  return formatter.format(amount);
+};
+
 export default function ProductCard({ product }: Props) {
+  console.log("Product===>>", product);
   const { loggedIn } = useAuth();
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -87,13 +99,18 @@ export default function ProductCard({ product }: Props) {
             <h3 className="line-clamp-1 font-medium text-blue-gray-800">
               {truncate(product.title, 50)}
             </h3>
+            <div className="flex justify-end">
+              {product.rating ? (
+                <Rating value={parseFloat(product.rating.toFixed(1))} />
+              ) : null}
+            </div>
           </div>
           <div className="flex justify-end items-center space-x-2 mb-2">
             <Typography color="blue-gray" className="font-medium line-through">
-              ${product.price.base}
+              {formatPrice(product.price.base)}
             </Typography>
             <Typography color="blue-gray" className="font-medium">
-              ${product.price.discounted}
+              {formatPrice(product.price.discounted)}
             </Typography>
           </div>
           <p className="font-normal text-sm opacity-75 line-clamp-3">

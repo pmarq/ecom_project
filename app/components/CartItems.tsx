@@ -1,7 +1,6 @@
 "use client";
 import Image from "next/image";
 import React, { useState } from "react";
-import { formatPrice } from "../utils/helper";
 import { Button } from "@material-tailwind/react";
 import CartCountUpdater from "./CartCountUpdater";
 import { XMarkIcon } from "@heroicons/react/24/outline";
@@ -31,8 +30,17 @@ interface CartItemsProps {
   cartId?: string;
   products: Product[];
   cartTotal: number;
-  totalQty: number; 
+  totalQty: number;
 }
+
+const formatPrice = (amount: number) => {
+  const formatter = new Intl.NumberFormat("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  });
+
+  return formatter.format(amount);
+};
 
 const CartItems: React.FC<CartItemsProps> = ({
   products = [],
@@ -60,7 +68,7 @@ const CartItems: React.FC<CartItemsProps> = ({
     setBusy(true);
     const getUrl = await fetch("/api/checkout", {
       method: "POST",
-      body: JSON.stringify({cartId}),
+      body: JSON.stringify({ cartId }),
     });
 
     const { error, url } = await getUrl.json();
@@ -80,7 +88,7 @@ const CartItems: React.FC<CartItemsProps> = ({
         <tbody className="bg-white divide-y divide-gray-200">
           {products.map((product) => {
             const quantity = product.quantity;
-            const price = resolveTypeJsonValues(product?.price)
+            const price = resolveTypeJsonValues(product?.price);
 
             const discounted = price?.discounted ?? 1;
             const multiplication = discounted * quantity;
@@ -131,7 +139,7 @@ const CartItems: React.FC<CartItemsProps> = ({
           <p className="font-semibold text-2xl">Total</p>
           <div>
             <p className="font-semibold text-2xl">{formatPrice(cartTotal)}</p>
-            <p className="text-right text-sm">{totalQty} items</p>
+            <p className="text-right text-sm">{totalQty} item(s)</p>
           </div>
         </div>
         <Button

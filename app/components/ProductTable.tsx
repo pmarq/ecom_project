@@ -56,14 +56,11 @@ interface Props {
   currentPageNo: number;
   hasMore?: boolean;
   showPageNavigator?: boolean;
+  productsSearch?: any;
 }
 
 interface Prods {
   category: string;
-  /*   price: {
-    base: number;
-    discounted: number;
-  }; */
 
   price: Prisma.JsonValue;
 
@@ -80,8 +77,9 @@ interface Prods {
 let hasMore: boolean;
 
 export default function ProductTable(props: Props) {
+  /* console.log("PROPS PRODUCT TB===>>>", props); */
   const router = useRouter();
-  const { currentPageNo, showPageNavigator = true } = props;
+  const { currentPageNo, showPageNavigator = true, productsSearch } = props;
 
   const [sttProds, setProds] = useState<Prods[]>([]);
   const [sttProdsFirstTime, setProdsFirstTime] = useState<boolean>(true);
@@ -95,11 +93,6 @@ export default function ProductTable(props: Props) {
     if (isNaN(+currentPageNo)) return redirect("/404");
 
     let allProds = await fetchProducts(userId, +currentPageNo, productsPerPage);
-
-    /* allProds = {
-      ...allProds,
-      price: resolveTypeJsonValues(allProds.price),
-    }; */
 
     if (allProds.length < productsPerPage) {
       hasMore = false;
@@ -116,7 +109,16 @@ export default function ProductTable(props: Props) {
       setProds(allProds), setProdsFirstTime(false);
     }
   }
-  getProducts();
+
+  console.log("PRODSEARCHTB===>", productsSearch);
+
+  if (!productsSearch) {
+    getProducts();
+  }
+
+  if (productsSearch && sttProdsFirstTime) {
+    setProds(productsSearch), setProdsFirstTime(false);
+  }
 
   const handleOnPrevPress = () => {
     const prevPage = currentPageNo - 1;
@@ -137,7 +139,7 @@ export default function ProductTable(props: Props) {
           </Typography>
         </div>
         <div className="flex w-full shrink-0 gap-2 md:w-max">
-          <SearchForm />
+          <SearchForm submitTo="/products/search?query=" />
           <Link
             href="/products/create"
             className="select-none font-bold text-center uppercase transition-all text-xs py-2 px-4 rounded-lg bg-blue-500 text-white shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 focus:opacity-[0.85] focus:shadow-none active:opacity-[0.85] active:shadow-none flex items-center gap-3"

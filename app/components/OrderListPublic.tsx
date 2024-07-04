@@ -4,6 +4,15 @@ import React from "react";
 import dateFormat from "dateformat";
 import { Chip } from "@material-tailwind/react";
 
+export interface Orders {
+  id: any;
+  products: product[];
+  paymentStatus: string;
+  date: string;
+  total: number;
+  deliveryStatus: "ordered" | "delivered" | "shipped";
+}
+
 type product = {
   id: string;
   title: string;

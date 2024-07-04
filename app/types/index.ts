@@ -210,3 +210,24 @@ export interface CartProduct {
   qty: number;
   productId: string;
 }
+
+export interface ReviewRequestBody {
+  productId: string;
+  userId: string;
+  comment?: string;
+  rating: number;
+}
+
+export interface ProductForSearch {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  thumbnail: string;
+  sale: number;
+  rating?: number;
+  price: {
+    base: number;
+    discounted: number;
+  };
+}

@@ -1,11 +1,9 @@
-import React from 'react'
-import GridView from '@/app/components/GridView';
-import HorizontalMenu from '@/app/components/HorizontalMenu';
-import ProductCard from '@/app/components/ProductCard';
-import { startDb } from '@/app/lib/db';
-import prisma from '@/prisma';
-
-
+import React from "react";
+import GridView from "@/app/components/GridView";
+import ProductCard from "@/app/components/ProductCard";
+import { startDb } from "@/app/lib/db";
+import prisma from "@/prisma";
+import CategoryMenu from "@/app/components/CategoryMenu";
 
 //como colocar uma quantidade (dentro do product table eu posso passar o fetch?? igual aqui?)
 
@@ -22,31 +20,30 @@ interface LatestProducts {
   };
 }
 
-
 const fetchProductByCategory = async (categories: string) => {
-  await startDb()
+  await startDb();
   const products = await prisma.product.findMany({
-    where: {      
-      price: { not: null as any}, //solução chat gpt**,
-      category: categories    
+    where: {
+      price: { not: null as any }, //solução chat gpt**,
+      category: categories,
     },
     orderBy: {
-      createdAt: "desc",     
+      createdAt: "desc",
     },
-    
+
     select: {
       thumbnails: true,
       price: true,
       quantity: true,
-      description:true,
+      description: true,
       category: true,
       title: true,
       id: true,
       sale: true,
       createdAt: true,
-    },      
+    },
   });
-  return products.map((product) =>{
+  return products.map((product) => {
     return {
       id: product.id.toString(),
       title: product.title,
@@ -55,21 +52,25 @@ const fetchProductByCategory = async (categories: string) => {
       thumbnail: product.thumbnails,
       price: product.price,
       sale: product.sale,
-    }
+    };
   });
-}  
+};
 
-let newArr: LatestProducts[] = [] 
+let newArr: LatestProducts[] = [];
 
 interface Props {
-    params: { categories: string }
+  params: { categories: string };
 }
 
-export default async function ProductByCategory({params}: Props) {
-  const products = await fetchProductByCategory(decodeURIComponent (params.categories));
-  const parsedProducts = JSON.parse(JSON.stringify(products)) as LatestProducts[];
+export default async function ProductByCategory({ params }: Props) {
+  const products = await fetchProductByCategory(
+    decodeURIComponent(params.categories)
+  );
+  const parsedProducts = JSON.parse(
+    JSON.stringify(products)
+  ) as LatestProducts[];
 
-  products.map((item) =>{
+  products.map((item) => {
     const prodPrice = item?.price;
     const strPrice = JSON.stringify(prodPrice);
     const obj = JSON.parse(strPrice);
@@ -81,23 +82,26 @@ export default async function ProductByCategory({params}: Props) {
       category: item?.category ?? "",
       thumbnail: item?.thumbnail[0].url,
       price: { base: obj.base, discounted: obj.discounted },
-      sale: item.sale      
-    };   
+      sale: item.sale,
+    };
 
-    newArr.push(newProdObj)    
-
-  });  
-
+    newArr.push(newProdObj);
+  });
 
   return (
-    <div className='py-4 space-y-4'>   
-      <HorizontalMenu/>
-     {parsedProducts.length?  <GridView>
-      {newArr.map((product: LatestProducts) => {
-        return <ProductCard key={product.id} product={product}/>
-      })}
-    </GridView>: <h1 className='text-center pt-10 font-semibold text-2xl opacity-40'>
-        Sorry there are no products in this category!</h1>}
-    </div>   
-  )
+    <div className="py-4 space-y-4">
+      <CategoryMenu />
+      {parsedProducts.length ? (
+        <GridView>
+          {newArr.map((product: LatestProducts) => {
+            return <ProductCard key={product.id} product={product} />;
+          })}
+        </GridView>
+      ) : (
+        <h1 className="text-center pt-10 font-semibold text-2xl opacity-40">
+          Sorry there are no products in this category!
+        </h1>
+      )}
+    </div>
+  );
 }
