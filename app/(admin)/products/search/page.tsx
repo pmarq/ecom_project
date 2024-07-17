@@ -10,7 +10,6 @@ interface Props {
 }
 
 const searchProducts = async (query: string) => {
-  console.log("searchProducts");
   await startDb();
   const products = await prisma.product.findMany({
     where: {
@@ -44,8 +43,6 @@ const searchProducts = async (query: string) => {
     };
   });
 
-  console.log("RESULTS===>", results);
-
   return results;
 };
 
@@ -58,6 +55,7 @@ export default async function AdminSearch({ searchParams }: Props) {
         productsSearch={results}
         showPageNavigator={false}
         currentPageNo={0}
+        query={query}
       />
     </div>
   );

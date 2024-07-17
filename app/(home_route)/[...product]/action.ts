@@ -9,6 +9,8 @@ export const fetchProduct = async (productId: string) => {
 
   await startDb();
 
+  console.log("primeiro")
+
   try {
     const product = await prisma.product.findUnique({
       where: {

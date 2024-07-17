@@ -43,7 +43,6 @@ const formatPrice = (amount: number) => {
 };
 
 export default function ProductCard({ product }: Props) {
-  console.log("Product===>>", product);
   const { loggedIn } = useAuth();
   const router = useRouter();
   const [isPending, startTransition] = useTransition();

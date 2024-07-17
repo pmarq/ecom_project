@@ -31,7 +31,11 @@ export default function SearchForm({ submitTo }: Props) {
           </button>
         }
         value={cond}
-        onChange={({ target }) => setQuery(target.value)}
+        onChange={({ target }) => {
+          const value = target.value;
+          console.log({ value });
+          setQuery(target.value);
+        }}
         crossOrigin={undefined}
       />
     </form>

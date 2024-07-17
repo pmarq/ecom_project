@@ -56,12 +56,12 @@ interface Props {
   currentPageNo: number;
   hasMore?: boolean;
   showPageNavigator?: boolean;
-  productsSearch?: any;
+  productsSearch?: Prods[];
+  query?: string;
 }
 
 interface Prods {
   category: string;
-
   price: Prisma.JsonValue;
 
   quantity: number;
@@ -77,14 +77,22 @@ interface Prods {
 let hasMore: boolean;
 
 export default function ProductTable(props: Props) {
-  /* console.log("PROPS PRODUCT TB===>>>", props); */
   const router = useRouter();
   const { currentPageNo, showPageNavigator = true, productsSearch } = props;
-
+  const newQuery = props?.query;
+  const [sttQuery, setQuery] = useState("");
   const [sttProds, setProds] = useState<Prods[]>([]);
   const [sttProdsFirstTime, setProdsFirstTime] = useState<boolean>(true);
 
   const productsPerPage = 10;
+
+  if (newQuery) {
+    const cond = sttQuery === newQuery;
+    if (!cond) {
+      setQuery(newQuery);
+      setProdsFirstTime(true);
+    }
+  }
 
   async function getProducts() {
     const session = useSession();
@@ -109,8 +117,6 @@ export default function ProductTable(props: Props) {
       setProds(allProds), setProdsFirstTime(false);
     }
   }
-
-  console.log("PRODSEARCHTB===>", productsSearch);
 
   if (!productsSearch) {
     getProducts();
@@ -140,6 +146,7 @@ export default function ProductTable(props: Props) {
         </div>
         <div className="flex w-full shrink-0 gap-2 md:w-max">
           <SearchForm submitTo="/products/search?query=" />
+
           <Link
             href="/products/create"
             className="select-none font-bold text-center uppercase transition-all text-xs py-2 px-4 rounded-lg bg-blue-500 text-white shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 focus:opacity-[0.85] focus:shadow-none active:opacity-[0.85] active:shadow-none flex items-center gap-3"
