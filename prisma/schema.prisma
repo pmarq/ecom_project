@@ -29,6 +29,7 @@ model User {
   orders Order[]
   reviews ReviewDocument[] @relation("ReviewDocumenttoUser")
   histories History[] @relation("UserToHistory")
+  wishlist  Wishlist[] @relation("UserToWishlist")
 }
 
 enum UserRole {
@@ -97,7 +98,8 @@ model Product {
   cartItem     CartItem[]    @relation("CartItemtoProduct")
   reviews      ReviewDocument[] @relation("ReviewDocumenttoProduct")
   rating       Int?
-  histories    History[]      @relation("ProductToHistory")
+  histories    History[]      @relation("ProductToHistory") 
+  wishlist     WishlistProduct[]  @relation("ProductToWishlistProduct")
 }
 
 model Thumbnail {
@@ -232,3 +234,22 @@ model History {
   @@unique([ownerId, productId])
 }
 
+//// whishlist
+
+model Wishlist {
+  id        String     @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String     @db.ObjectId
+  user      User       @relation("UserToWishlist", fields: [userId], references: [id])
+  products  WishlistProduct[]
+  createdAt DateTime   @default(now()) @map("created_at")
+  updatedAt DateTime   @updatedAt @map("updated_at")
+}
+
+model WishlistProduct {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  wishlistId String   @db.ObjectId
+  productId  String   @db.ObjectId
+  wishlist   Wishlist @relation(fields: [wishlistId], references: [id])
+  product    Product  @relation("ProductToWishlistProduct", fields: [productId], references: [id])
+  @@unique([wishlistId, productId])
+}

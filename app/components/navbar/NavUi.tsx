@@ -3,6 +3,7 @@
 import useAuth from "@/app/hooks/useAuth";
 import {
   Bars3Icon,
+  HeartIcon,
   ShoppingBagIcon,
   UserCircleIcon,
   XMarkIcon,
@@ -34,6 +35,11 @@ export const menuItems = [
     href: "/profile/orders",
     icon: <ShoppingBagIcon className="h-4 w-4" />,
     label: "Orders",
+  },
+  {
+    href: "/profile/wishlist",
+    icon: <HeartIcon className="h-4 w-4" />,
+    label: "Wishlist",
   },
 ];
 

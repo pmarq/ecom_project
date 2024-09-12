@@ -4,6 +4,7 @@ import React, { ReactNode, useState } from "react";
 import Slider from "rc-slider";
 import "rc-slider/assets/index.css";
 import { StarIcon } from "@heroicons/react/24/solid";
+import { useRouter, useSearchParams } from "next/navigation";
 
 interface Props {
   children: ReactNode;
@@ -11,9 +12,34 @@ interface Props {
 
 export default function SearchFilter({ children }: Props) {
   const [rating, setRating] = useState([0, 5]);
+  const [priceFilter, setPriceFilter] = useState("asc");
+  const [applyRatingFilter, setApplyRatingFilter] = useState(false);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const query = searchParams.get("query");
+  const priceSort = searchParams.get("priceSort");
+
+  const lowToHeigh = priceSort === "asc";
+  const heightoToLow = priceSort === "desc";
+
   return (
-    <div className="md:flex py-4 space-y-4">
-      <div className="md:border-r md:border-b-0 border-b border-gray-700 p-4 md:space-y-4 md:block flex space-x-8 md:space-x-0">
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+
+        let url = "";
+
+        if (applyRatingFilter) {
+          url = `\search?query=${query}&minRating=${rating[0]}&maxRating=${rating[1]}&priceSort=${priceFilter}`;
+        } else {
+          url = `\search?query=${query}&priceSort=${priceFilter}`;
+        }
+
+        router.push(url);
+      }}
+      className="md:flex py-4 space-y-4"
+    >
+      <div className="md:border-r md:border-b-0 border-b border-gray-700 p-4 md:space-y-4 md:block flex space-x-8 md:space-x-0 sticky top-0 md:h-screen z-10 bg-white">
         <div>
           <p className="font-semibold">Price</p>
           <div>
@@ -21,10 +47,11 @@ export default function SearchFilter({ children }: Props) {
               <Radio
                 name="type"
                 label="Low to heigh"
-                defaultChecked
+                defaultChecked={lowToHeigh}
                 color="blue-gray"
                 className="text-sm"
                 crossOrigin={undefined}
+                onChange={() => setPriceFilter("asc")}
               />
             </div>
             <div>
@@ -33,6 +60,8 @@ export default function SearchFilter({ children }: Props) {
                 label="Heigh to low"
                 color="blue-gray"
                 crossOrigin={undefined}
+                onChange={() => setPriceFilter("desc")}
+                defaultChecked={heightoToLow}
               />
             </div>
           </div>
@@ -61,19 +90,34 @@ export default function SearchFilter({ children }: Props) {
               ),
             }}
             onChange={(value) => {
+              setApplyRatingFilter(true);
               setRating(value as number[]);
             }}
           />
         </div>
 
         <div>
-          <button className="text-blue-gray-600 text-center w-full p-1 border rounded mt-6">
+          <button
+            type="submit"
+            className="text-blue-gray-600 text-center w-full p-1 border rounded mt-6"
+          >
             Apply Filter
+          </button>
+          <button
+            onClick={() => {
+              setApplyRatingFilter(false);
+              setRating([0, 5]);
+              router.push("/search?query=" + query);
+            }}
+            type="button"
+            className="text-blue-gray-600 text-center w-full p-1 border rounded mt-6"
+          >
+            Clear Filter
           </button>
         </div>
       </div>
 
       <div className="p-4 flex-1">{children}</div>
-    </div>
+    </form>
   );
 }

@@ -110,11 +110,27 @@ export default async function Product({ params }: Props) {
   const result = await fetchReviews(productId);
   const similarProducts = await fetchSimilarProducts(productId);
 
+  let isWishlist = false;
+
   const session = await getServerSession(authOptions);
   const owner = session?.user?.id;
   if (owner) {
     await updateOrCreateHistory(owner, productId);
+    const wishlist = await prisma.wishlist.findFirst({
+      where: {
+        userId: owner,
+      },
+      include: {
+        products: true,
+      },
+    });
+    const wishlistProduct = wishlist?.products.some(
+      (product) => product.productId === productId
+    );
+    isWishlist = wishlistProduct ? true : false;
   }
+
+  console.log("isWishlist===>", isWishlist);
 
   return (
     <div className="p-4">
@@ -127,6 +143,7 @@ export default async function Product({ params }: Props) {
         images={productImages}
         rating={productInfo.rating}
         outOfStock={productInfo.outOfStock}
+        isWishlist={isWishlist}
       />
 
       <SimilarProductsList products={similarProducts} />
