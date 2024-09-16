@@ -56,7 +56,7 @@ const fetchProduct = async () => {
 export default async function Wishlist() {
   const products = await fetchProduct();
 
-  if (!products)
+  if (!products.length)
     return (
       <h1 className="text-2xl opacity-50 text-center p-6 font-semibold">
         There is no products inside your Wishlist

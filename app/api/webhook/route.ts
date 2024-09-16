@@ -270,7 +270,7 @@ export const POST = async (req: Request) => {
     if (type === "instant-checkout") {
       const userId = customer.metadata.userId;
 
-      let productInfo;
+      let productInfo: any;
       try {
         productInfo = JSON.parse(product);
       } catch (error) {
