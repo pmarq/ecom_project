@@ -86,6 +86,15 @@ export default function ProductTable(props: Props) {
 
   const productsPerPage = 10;
 
+  const session = useSession();
+  const userId = session.data?.user.id;
+
+  if (!userId) {
+    // Redireciona o usuário para a página de login caso não esteja autenticado
+    router.push("/auth/signin");
+    return null; // Garante que nada mais seja renderizado enquanto o redirecionamento acontece
+  }
+
   if (newQuery) {
     const cond = sttQuery === newQuery;
     if (!cond) {
@@ -94,9 +103,8 @@ export default function ProductTable(props: Props) {
     }
   }
 
-  async function getProducts() {
-    const session = useSession();
-    const userId = session.data?.user.id;
+  async function getProducts(userId: string) {
+    if (!userId) return null;
 
     if (isNaN(+currentPageNo)) return redirect("/404");
 
@@ -118,8 +126,8 @@ export default function ProductTable(props: Props) {
     }
   }
 
-  if (!productsSearch) {
-    getProducts();
+  if (!productsSearch && userId) {
+    getProducts(userId);
   }
 
   if (productsSearch && sttProdsFirstTime) {
