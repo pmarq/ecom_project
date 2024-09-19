@@ -5,6 +5,8 @@ import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 
+export const dynamic = "force-dynamic"; // Força a rota a ser renderizada dinamicamente
+
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2023-10-16",
 });
