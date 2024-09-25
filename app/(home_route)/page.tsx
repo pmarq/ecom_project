@@ -5,22 +5,40 @@ import GridView from "../components/GridView";
 import ProductCard from "../components/ProductCard";
 import CategoryMenu from "../components/CategoryMenu";
 
-interface Props {
+// Interface para o objeto Price
+interface Price {
+  base: number;
+  discounted: number;
+}
+
+// Interface para o objeto Produto
+interface ProductProps {
   id: string;
   title: string;
   description: string;
   category: string;
   thumbnail: string;
   sale: number;
-  price: {
-    base: number;
-    discounted: number;
-  };
-  rating: number;
+  price: Price;
+  rating?: number;
 }
 
+// Função para verificar se um valor é um objeto 'Price'
+const isPriceObject = (price: any): price is Price => {
+  return (
+    typeof price === "object" &&
+    price !== null &&
+    "base" in price &&
+    "discounted" in price &&
+    typeof price.base === "number" &&
+    typeof price.discounted === "number"
+  );
+};
+
+// Função para buscar os produtos mais recentes
 const fetchLatestProducts = async () => {
   await startDb();
+
   const products = await prisma.product.findMany({
     where: {
       price: { not: null as any },
@@ -28,10 +46,10 @@ const fetchLatestProducts = async () => {
     orderBy: {
       createdAt: "desc",
     },
+    take: 10, // Limita a busca para evitar sobrecarga de dados
     select: {
       thumbnails: true,
       price: true,
-      quantity: true,
       description: true,
       category: true,
       title: true,
@@ -42,68 +60,54 @@ const fetchLatestProducts = async () => {
     },
   });
 
-  return products.map((product) => ({
-    id: product.id.toString(),
-    title: product.title,
-    description: product.description,
-    category: product.category,
-    thumbnail: product.thumbnails[0].url, // Assuming the first thumbnail
-    price: {
-      base: product.price.base,
-      discounted: product.price.discounted,
-    },
-    sale: product.sale,
-    rating: product.rating,
-  }));
-};
+  return products.map((product) => {
+    const price: Price = isPriceObject(product.price)
+      ? product.price
+      : { base: 0, discounted: 0 };
 
-const fetchFeaturedProduct = async () => {
-  await startDb();
-  const featuredProducts = await prisma.featuredProduct.findMany({
-    orderBy: {
-      createdAt: "desc",
-    },
-    select: {
-      id: true,
-      link: true,
-      linkTitle: true,
-      title: true,
-      createdAt: true,
-      url: true,
-    },
+    // Verificação robusta para garantir que thumbnails seja sempre um array válido
+    const thumbnailUrl =
+      Array.isArray(product.thumbnails) && product.thumbnails.length > 0
+        ? product.thumbnails[0].url
+        : "";
+
+    return {
+      id: product.id.toString(),
+      title: product.title,
+      description: product.description,
+      category: product.category,
+      thumbnail: thumbnailUrl,
+      price: {
+        base: price.base,
+        discounted: price.discounted,
+      },
+      sale: product.sale,
+      rating: product.rating ?? 0,
+    };
   });
-  return featuredProducts.map((featuredProduct) => ({
-    id: featuredProduct.id.toString(),
-    title: featuredProduct.title,
-    link: featuredProduct.link,
-    linkTitle: featuredProduct.linkTitle,
-    banner: featuredProduct.url,
-  }));
 };
 
-export const getServerSideProps = async () => {
-  const latestProducts = await fetchLatestProducts();
-  const featuredProducts = await fetchFeaturedProduct();
+// Server Component que renderiza a página
+export default async function Home() {
+  try {
+    const latestProducts = await fetchLatestProducts(); // Buscando produtos diretamente
 
-  return {
-    props: {
-      latestProducts,
-      featuredProducts,
-    },
-  };
-};
-
-const Home = ({ latestProducts }: { latestProducts: Props[] }) => {
-  return (
-    <div className="py-4 space-y-4">
-      <CategoryMenu />
-      <GridView>
-        {latestProducts.map((product: Props) => (
-          <ProductCard key={product.id} product={product} />
-        ))}
-      </GridView>
-    </div>
-  );
-};
-
-export default Home;
+    return (
+      <div className="py-4 space-y-4">
+        <CategoryMenu />
+        <GridView>
+          {latestProducts.length > 0 ? (
+            latestProducts.map((product: ProductProps) => (
+              <ProductCard key={product.id} product={product} />
+            ))
+          ) : (
+            <p>No products available</p>
+          )}
+        </GridView>
+      </div>
+    );
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    return <p>Error loading products. Please try again later.</p>;
+  }
+}
