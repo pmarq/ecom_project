@@ -64,10 +64,12 @@ const getCartItemsCount = async () => {
 };
 
 export default async function Navbar() {
-  const cartItemsCount = await getCartItemsCount();
-  const profile = await fetchUserProfile();
+  /*   const cartItemsCount = await getCartItemsCount();
+  const profile = await fetchUserProfile(); */
 
-  return <NavUI cartItemsCount={cartItemsCount} avatar={profile?.image} />;
+  return;
+
+  /*  return <NavUI cartItemsCount={cartItemsCount} avatar={profile?.image} />; */
 }
 
 /* ------------------------------- */
