@@ -114,7 +114,7 @@ export default async function Home() {
 
   return (
     <div className="py-4 space-y-4">
-      <FeaturedProductsSlider products={featuredProducts} />
+      {/*   <FeaturedProductsSlider products={featuredProducts} /> */}
       <CategoryMenu />
       <GridView>
         {newArr.map((product: Props) => {
