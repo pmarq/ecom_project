@@ -67,7 +67,11 @@ export default async function Navbar() {
   /*   const cartItemsCount = await getCartItemsCount();
   const profile = await fetchUserProfile(); */
 
-  return;
+  return (
+    <div>
+      <p> NavBar</p>
+    </div>
+  );
 
   /*  return <NavUI cartItemsCount={cartItemsCount} avatar={profile?.image} />; */
 }
