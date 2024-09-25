@@ -11,6 +11,7 @@ import {
 import prisma from "@/prisma";
 import { v2 as cloudinary } from "cloudinary";
 import { redirect } from "next/navigation";
+import { ObjectId } from "mongodb"; // Import para validação de ObjectId
 
 cloudinary.config({
   cloud_name: process.env.CLOUD_NAME,
@@ -26,8 +27,7 @@ export const getCloudConfig = async () => {
   };
 };
 
-// generate cloud signature
-
+// Generate cloud signature
 export const getCloudSigature = async () => {
   const secret = cloudinary.config().api_secret as string;
   const timestamp = Math.round(new Date().getTime() / 1000);
@@ -69,14 +69,13 @@ export const createProduct = async (info: info) => {
 
   const productId = product.id;
 
-  function bulletPointsCreate() {
-    info.bulletPoints.map((item: BulletPoints) => {
-      createBullet(item.content);
-    });
-  }
-  bulletPointsCreate();
+  // Create bullet points
+  const bulletPromises = info.bulletPoints.map((item: BulletPoints) =>
+    createBullet(item.content, productId)
+  );
+  await Promise.all(bulletPromises); // Aguarda todas as promessas
 
-  async function createBullet(str: string) {
+  async function createBullet(str: string, productId: string) {
     await prisma.bulletPoint.create({
       data: {
         content: str,
@@ -85,7 +84,13 @@ export const createProduct = async (info: info) => {
     });
   }
 
-  const createImg = async (obj: image) => {
+  // Create images
+  const imgPromises = info.images.map((item: image) =>
+    createImg(item, productId)
+  );
+  await Promise.all(imgPromises); // Aguarda todas as promessas
+
+  const createImg = async (obj: image, productId: string) => {
     await prisma.image.create({
       data: {
         publicId: obj.publicId,
@@ -95,13 +100,7 @@ export const createProduct = async (info: info) => {
     });
   };
 
-  const imgCreate = () => {
-    info.images.map((item: image) => {
-      createImg(item);
-    });
-  };
-  imgCreate();
-
+  // Create thumbnail
   await prisma.thumbnail.create({
     data: {
       publicId: info.thumbnail.publicId,
@@ -149,15 +148,11 @@ export const removeImageFromCloud = async (publicId: string) => {
 ///// FETCH PRODUCT INFO
 
 export const fetchProductInfo = async (productId: string): Promise<string> => {
-  await startDb(); 
+  await startDb();
 
-  const validProduct = await prisma.product.findUnique({
-    where: {
-      id: productId,
-    },
-  });
-
-  if (!validProduct) return redirect("/404");
+  if (!ObjectId.isValid(productId)) {
+    throw new Error("Invalid Product ID format");
+  }
 
   const product = await prisma.product.findUnique({
     where: {
@@ -176,31 +171,36 @@ export const fetchProductInfo = async (productId: string): Promise<string> => {
     },
   });
 
+  if (!product) return redirect("/404");
+
   const prod = product?.price;
   const str = JSON.stringify(prod);
   const obj = JSON.parse(str);
 
   const finalProduct: ProductResponse = {
-    id: product?.id.toString() ?? "",
-    title: product?.title ?? "",
-    description: product?.description ?? "",
-    quantity: product?.quantity ?? 0,
-    price: { base: obj.base, discounted: obj.discounted },
-    bulletPoints: product?.bulletPoints,
-    images: product?.images.map(({ url, id, publicId }) => {
+    id: product.id.toString(),
+    title: product.title,
+    description: product.description,
+    quantity: product.quantity,
+    price: {
+      base: obj.base,
+      discounted: obj.discounted,
+    },
+    bulletPoints: product.bulletPoints,
+    images: product.images.map(({ url, id, publicId }) => {
       return { url, id, publicId };
     }),
-    thumbnail: product?.thumbnails,
-    category: product?.category ?? "",
+    thumbnail: product.thumbnails,
+    category: product.category,
     userId: "",
     mrp: 0,
     salePrice: 0,
   };
+
   return JSON.stringify(finalProduct);
 };
 
-//remove image from cloud and from MongoDB (update no sentido de deixar cloudinary igual ao MongoDB)
-// pq imageId: string e não publicId???**
+// Remove image from cloud and from MongoDB
 export const removeAndUpdateProductImage = async (
   productId: string,
   imageId: string,
@@ -210,12 +210,9 @@ export const removeAndUpdateProductImage = async (
   if (result === "ok") {
     try {
       await startDb();
-
-      // Remove the image associated with the productId
       await prisma.image.delete({
         where: {
           id: imageIdMongo,
-          productId,
         },
       });
     } catch (error) {
@@ -224,7 +221,7 @@ export const removeAndUpdateProductImage = async (
   }
 };
 
-////REMOVE BULLETPOINT FROM DB
+//// REMOVE BULLETPOINT FROM DB
 
 export const deleteBulletPoint = async (bulletPointToRemove: {
   content: string;
@@ -237,6 +234,7 @@ export const deleteBulletPoint = async (bulletPointToRemove: {
     const bulletPoint = await prisma.bulletPoint.findUnique({
       where: { id: bulletPointToRemove.id },
     });
+
     if (bulletPoint) {
       await prisma.bulletPoint.delete({
         where: { id: bulletPointToRemove.id },
@@ -263,13 +261,13 @@ export const updateProduct = async (
     price: dataToUpdate.price,
   };
 
-  const product = await prisma.product.update({
+  await prisma.product.update({
     where: { id: productId },
     data: { ...prodsUpdt },
   });
 
   if (dataToUpdate.thumbnail) {
-    const thumbnailUpdt = await prisma.thumbnail.update({
+    await prisma.thumbnail.update({
       where: { id: dataToUpdate.thumbnailId },
       data: {
         ...dataToUpdate.thumbnail,
@@ -277,7 +275,6 @@ export const updateProduct = async (
     });
   }
 
-  // posso construir uma const imagesUpdt??
   if (dataToUpdate.images) {
     const imagesUpdt = dataToUpdate.images.map(async (item: image) => {
       await prisma.image.create({
@@ -288,30 +285,32 @@ export const updateProduct = async (
         },
       });
     });
+    await Promise.all(imagesUpdt); // Aguarda todas as promessas de criação de imagem serem resolvidas
   }
 
-  // updateBulletpoints
+  // Atualiza bullet points
   if (dataToUpdate.bulletPoints) {
-    dataToUpdate.bulletPoints.map(async (item: BulletPoints) => {
-      try {
-        if (item.id) {
-          // If bullet point already exists, update it
-          await prisma.bulletPoint.update({
-            where: { id: item.id },
-            data: { content: item.content },
-          });
-        } else {
-          // If bullet point doesn't exist, create a new one
-          await prisma.bulletPoint.create({
-            data: {
-              content: item.content,
-              product: { connect: { id: productId } },
-            },
-          });
+    const bulletPointsUpdt = dataToUpdate.bulletPoints.map(
+      async (item: BulletPoints) => {
+        try {
+          if (item.id) {
+            await prisma.bulletPoint.update({
+              where: { id: item.id },
+              data: { content: item.content },
+            });
+          } else {
+            await prisma.bulletPoint.create({
+              data: {
+                content: item.content,
+                product: { connect: { id: productId } },
+              },
+            });
+          }
+        } catch (error) {
+          console.error("Error updating bullet points:", error);
         }
-      } catch (error) {
-        console.error("This error UPDATEBULLET====>", error);
       }
-    });
+    );
+    await Promise.all(bulletPointsUpdt); // Aguarda todas as promessas de atualização/criação de bullet points
   }
 };
