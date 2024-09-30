@@ -95,8 +95,9 @@ export default async function Home() {
 
     return (
       <div className="py-4 space-y-4">
-        <CategoryMenu />
-        {/* <GridView>
+        <p>TESTE</p>
+        {/*   <CategoryMenu />
+        <GridView>
           {latestProducts.length > 0 ? (
             latestProducts.map((product: ProductProps) => (
               <ProductCard key={product.id} product={product} />
