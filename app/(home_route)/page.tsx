@@ -15,9 +15,15 @@ const fetchLatestProducts = async () => {
     },
     take: 1, // Limit to only 1 product to avoid large data
     select: {
-      title: true,
+      thumbnails: true,
       price: true,
       description: true,
+      category: true,
+      title: true,
+      id: true,
+      sale: true,
+      createdAt: true,
+      rating: true,
     },
   });
 
