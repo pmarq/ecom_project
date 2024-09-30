@@ -94,13 +94,7 @@ export default function ProductCard({ product }: Props) {
           floated={false}
           className="relative w-full aspect-square m-0"
         >
-          <Image
-            src={product.thumbnail}
-            alt={product.title}
-            fill
-            width={200}
-            height={200} // Added width and height for better optimization
-          />
+          <Image src={product.thumbnail} alt={product.title} fill />
           <div className="absolute right-0 p-2">
             <Chip
               color="red"
