@@ -43,6 +43,10 @@ export default async function Home() {
           <div>
             <p>Title: {latestProducts[0].title}</p>
             <p>Description: {latestProducts[0].description}</p>
+            <p>Category: {latestProducts[0].category}</p>
+            <p>Thumbnail: {latestProducts[0].thumbnails[0].url}</p>
+            <p>Sale: {latestProducts[0].sale}</p>
+            <p>Rating: {latestProducts[0].rating}</p>
             {/*  <p>Price: {latestProducts[0].price.base}</p> */}
           </div>
         ) : (
