@@ -96,16 +96,17 @@ export default async function Home() {
     return (
       <div className="py-4 space-y-4">
         <p>TESTE</p>
-        {/*   <CategoryMenu />
+        {/*  <CategoryMenu /> */}
         <GridView>
-          {latestProducts.length > 0 ? (
+          <p>TESTE2</p>
+          {/*   {latestProducts.length > 0 ? (
             latestProducts.map((product: ProductProps) => (
               <ProductCard key={product.id} product={product} />
             ))
           ) : (
             <p>No products available</p>
-          )}
-        </GridView> */}
+          )} */}
+        </GridView>
       </div>
     );
   } catch (error) {
