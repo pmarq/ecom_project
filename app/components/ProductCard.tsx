@@ -47,34 +47,43 @@ export default function ProductCard({ product }: Props) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
+  // Handle Checkout with try-catch for better error handling
   const handleCheckout = async () => {
-    const getUrl = await fetch("/api/checkout/instant", {
-      method: "POST",
-      body: JSON.stringify({ product, type: "instant-checkout" }),
-    });
+    try {
+      const getUrl = await fetch("/api/checkout/instant", {
+        method: "POST",
+        body: JSON.stringify({ product, type: "instant-checkout" }),
+      });
 
-    const { error, url } = await getUrl.json();
+      const { error, url } = await getUrl.json();
 
-    if (!getUrl.ok) {
-      toast.error(error);
-    } else {
-      // open the checkout url.
+      if (!getUrl.ok) {
+        throw new Error(error);
+      }
+
       window.location.href = url;
+    } catch (err) {
+      toast.error("An error occurred during checkout.");
     }
   };
 
+  // Add to Cart with try-catch for better error handling
   const addToCart = async (): Promise<void> => {
     if (!loggedIn) return router.push("/auth/signin");
-    const res = await fetch("/api/product/cart", {
-      method: "POST",
-      body: JSON.stringify({ productId: product.id, quantity: 1 }),
-    });
-    const { error } = await res.json();
-    if (!res.ok && error) {
-      toast.error(error);
-      return; // Ensure the function returns void here
+
+    try {
+      const res = await fetch("/api/product/cart", {
+        method: "POST",
+        body: JSON.stringify({ productId: product.id, quantity: 1 }),
+      });
+      const { error } = await res.json();
+      if (!res.ok && error) {
+        throw new Error(error);
+      }
+      router.refresh();
+    } catch (err) {
+      toast.error("An error occurred while adding to cart.");
     }
-    router.refresh();
   };
 
   return (
@@ -85,7 +94,13 @@ export default function ProductCard({ product }: Props) {
           floated={false}
           className="relative w-full aspect-square m-0"
         >
-          <Image src={product.thumbnail} alt={product.title} fill />
+          <Image
+            src={product.thumbnail}
+            alt={product.title}
+            fill
+            width={200}
+            height={200} // Added width and height for better optimization
+          />
           <div className="absolute right-0 p-2">
             <Chip
               color="red"
@@ -122,9 +137,7 @@ export default function ProductCard({ product }: Props) {
           ripple={false}
           fullWidth={true}
           className="bg-blue-gray-900/10 text-blue-gray-900 shadow-none hover:shadow-none hover:scale-105 focus:shadow-none focus:scale-105 active:scale-100"
-          onClick={() => {
-            startTransition(async () => await addToCart());
-          }}
+          onClick={() => startTransition(addToCart)} // Optimized: directly passing addToCart
           disabled={isPending}
         >
           Add to Cart
@@ -133,9 +146,7 @@ export default function ProductCard({ product }: Props) {
           disabled={isPending}
           ripple={false}
           fullWidth={true}
-          onClick={() => {
-            startTransition(async () => await handleCheckout());
-          }}
+          onClick={() => startTransition(handleCheckout)} // Optimized: directly passing handleCheckout
           className="bg-blue-400 text-white shadow-none hover:shadow-none hover:scale-105 focus:shadow-none focus:scale-105 active:scale-100"
         >
           Buy Now
