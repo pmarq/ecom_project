@@ -12,7 +12,9 @@ export default function CategoryMenu() {
     <div>
       {categories.map((c) => (
         <a key={c} href={`/browse-products/${c}`}>
-          <Chip color="teal" className="mr-2" variant="outlined" value={c} />
+          <span className="inline-block bg-teal-100 text-teal-700 px-3 py-1 rounded-full text-sm font-medium mr-2">
+            {c}
+          </span>
         </a>
       ))}
     </div>
