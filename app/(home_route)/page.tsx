@@ -96,7 +96,7 @@ export default async function Home() {
     return (
       <div className="py-4 space-y-4">
         <p>TESTE</p>
-        {/*  <CategoryMenu /> */}
+        <CategoryMenu />
         <GridView>
           <p>TESTE2</p>
           {/*   {latestProducts.length > 0 ? (
