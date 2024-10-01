@@ -1,11 +1,8 @@
 "use client";
-import { Chip } from "@material-tailwind/react";
 import { ChevronRightIcon, ChevronLeftIcon } from "@heroicons/react/24/outline";
-import React, { ReactNode, useContext } from "react";
+import React, { useContext } from "react";
 import { ScrollMenu, VisibilityContext } from "react-horizontal-scrolling-menu";
-import Link from "next/link";
 import "react-horizontal-scrolling-menu/dist/styles.css";
-import categories from "../utils/categories";
 
 function LeftArrow() {
   const { isFirstItemVisible, scrollPrev } = useContext(VisibilityContext);
